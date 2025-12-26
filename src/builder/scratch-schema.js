@@ -15,6 +15,7 @@ export const scratchSchema = z.object({
     tags: z.array(z.string()).optional()
   }).optional(),
   expose: z.boolean().optional().default(false),
+  sandboxAllowed: z.boolean().optional().default(false),
   docsURI: z.url().optional(),
   esbuildConfig: z.object().optional()
 })

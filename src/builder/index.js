@@ -3,9 +3,9 @@ import { findProjectPath, parseScratch } from "./parse-scratch.js";
 import { createConsola } from "consola";
 import { logZodError } from "./format-zod-error.js";
 import path from "node:path";
-import fs from "node:fs";
 import fg from "fast-glob";
 import { wrapIIFEPlugin } from "./wrap-iife-plugin.js";
+import { clippyPlugin } from "./clippy-plugin.js";
 
 export const build = async ({
   minify,
@@ -18,6 +18,7 @@ export const build = async ({
   const consola = consolaInstance ?? createConsola({ level: verbose ? 999 : 3 });
 
   try {
+    // 1. Restore Path & Config Discovery
     const projectPath = findProjectPath();
     consola.debug(`Found Scratch config at ${projectPath}`);
 
@@ -31,117 +32,21 @@ export const build = async ({
     const menusDir = path.join(projectPath, "src/menus");
     const menuFiles = await fg("*.js", { cwd: menusDir, absolute: true });
 
-    let entryContent = "";
-
-    // Import blocks
-    const blockIds = [];
-    blockFiles.forEach((file, i) => {
-      const importPath = path.relative("/tmp/clippy", file).replace(/\\/g, "/");
-      const fileName = path.basename(file, ".js");
-      entryContent += `import block${i} from ${JSON.stringify(importPath)};\n`;
-      blockIds.push({ varName: `block${i}`, opcode: fileName });
-    });
-
-    // Import menus
-    const menusEntries = [];
-    menuFiles.forEach((file, i) => {
-      const importPath = path.relative("/tmp/clippy", file).replace(/\\/g, "/");
-      entryContent += `import menu${i} from ${JSON.stringify(importPath)};\n`;
-      menusEntries.push(`CLIPPY_MENU_${i}: menu${i}`);
-    });
-
-    // Dev reload snippet
-    if (develop) {
-      entryContent += `
-/*! NOTE: Dev mode is enabled.
-    You should not paste extensions from dev server into websites or projects.
-    Use "clippy build" instead. */
-(function(){
-  try {
-    const ws = new WebSocket('ws://localhost:8000');
-    ws.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'extension_update') location.reload();
-    });
-    ws.addEventListener('open', () => console.log('[Clippy Dev] Connected to dev server'));
-    ws.addEventListener('close', () => console.log('[Clippy Dev] Disconnected from dev server'));
-  } catch(e) {
-    console.warn('[Clippy Dev] WebSocket failed', e);
-  }
-})();\n`;
-    }
-
-    // Main extension class
-    // We use the global 'config' which is injected via esbuild's define
-    entryContent += `
-/*! Built using Clippy, the extension compiler | https://codeberg.org/ampmod/clippy */
-'use strict';
-
-if (!Scratch.extensions.unsandboxed) {
-  throw new Error(config.name + ' must run unsandboxed');
-}
-
-class _CLIPPY_GENERATED_ {
-  getInfo() {
-    return {
-      id: config.id,
-      name: config.name,
-      blocks: [
-        ${blockIds
-          .map(b => {
-            const spreadLogic = `Object.fromEntries(Object.entries(${b.varName}).filter(([k]) => k !== 'def'))`;
-            
-            return `{
-              opcode: ${JSON.stringify(b.opcode)},
-              ...${spreadLogic}
-            }`;
-          })
-          .join(",\n")}
-      ],
-      menus: {
-        ${menusEntries.join(",\n")}
-      }
-    };
-  }
-
-  ${blockIds
-    .map(b => `
-  ${b.opcode}(args) {
-    const result = ${b.varName}.def ? ${b.varName}.def(args) : undefined;
-    ${develop ? `if (result === undefined) console.warn('A block has been removed. This may CORRUPT existing projects.');` : ""}
-    return result;
-  }`)
-    .join("\n")}
-}
-
-const extension = _CLIPPY_GENERATED_;
-if (config.expose) Scratch.vm.runtime['ext_' + config.id] = _CLIPPY_GENERATED_;
-Scratch.extensions.register(new _CLIPPY_GENERATED_());
-`;
-
-    // Make tmp directory
-    const tmpDir = "/tmp/clippy";
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
-    const tmpEntryPath = path.join(tmpDir, "clippy-entry.js");
-    fs.writeFileSync(tmpEntryPath, entryContent);
-
-    // esbuild
     const result = await esbuild({
-      entryPoints: [tmpEntryPath],
+      entryPoints: ['clippy:scratch'],
       bundle: true,
       format: "iife",
-      minify: minify,
       minifyIdentifiers: false,
       minifySyntax: minify,
       minifyWhitespace: minify,
+      treeShaking: !develop,
       keepNames: true,
+      sourcesContent: false,
       legalComments: "inline",
       sourcemap: develop ? "inline" : false,
-      target: target || "es2018",
-      define: {
-        config: JSON.stringify(config),
-      },
+      target: target || (develop ? "esnext" : "es2018"),
       plugins: [
+        clippyPlugin(config, blockFiles, menuFiles, develop),
         wrapIIFEPlugin("Scratch"),
         {
           name: "preserve-scratch",
@@ -156,18 +61,30 @@ Scratch.extensions.register(new _CLIPPY_GENERATED_());
 
     let resultText = result.outputFiles[0].text;
 
-    // Gallery data
-    if (config.galleryData && !develop) {
+    if (develop) {
+      const devSnippet = `
+(function(){
+  try {
+    const ws = new WebSocket('ws://localhost:8000');
+    ws.onmessage = (e) => JSON.parse(e.data).type === 'extension_update' && location.reload();
+    ws.onopen = () => console.log('[Clippy Dev] Connected');
+  } catch(e) { console.warn('[Clippy Dev] WebSocket failed', e); }
+})();\n`;
+      resultText = devSnippet + resultText;
+    }
+
+    if (config.galleryData) {
+      const g = config.galleryData;
       const galleryComments =
-        `// Name: ${JSON.stringify(config.galleryData.name || config.name).slice(1, -1)}\n` +
+        `// Name: ${JSON.stringify(g.name || config.name).slice(1, -1)}\n` +
         `// ID: ${JSON.stringify(config.id).slice(1, -1)}\n` +
-        `// Description: ${JSON.stringify(config.galleryData.description).slice(1, -1)}\n` +
-        `// License: ${JSON.stringify(config.galleryData.license).slice(1, -1)}\n\n`;
-        
+        `// Description: ${JSON.stringify(g.description || "").slice(1, -1)}\n` +
+        `// License: ${JSON.stringify(g.license || "unlicense").slice(1, -1)}\n\n`;
       resultText = galleryComments + resultText;
     }
 
     return resultText;
+
   } catch (err) {
     logZodError(consola, err, { verbose });
     process.exitCode = 1;

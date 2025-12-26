@@ -4,11 +4,13 @@ import http from 'http';
 import { WebSocketServer } from 'ws';
 import { createConsola } from 'consola';
 import { findProjectPath } from './parse-scratch.js';
+import { lintExtensionFiles } from '../lint.js';
 
 export async function startDevServer({ port = 8000, verbose = false, ...argv } = {}) {
   const consola = createConsola({ level: verbose ? 999 : 3 });
   const projectPath = findProjectPath();
   let latestJS = '';
+  let lintResults;
 
   // Set up WebSocket server
   const wss = new WebSocketServer({ noServer: true });
@@ -24,8 +26,8 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
     const js = await build({ develop: true, consola, ...argv });
     if (js) {
       latestJS = js;
-      consola.success('Build complete!');
       broadcastUpdate(); // notify connected clients
+      lintResults = await lintExtensionFiles({develop:true});
     }
   }
 
@@ -41,7 +43,7 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
       persistent: true,
       ignoreInitial: true,    // don’t fire for existing files on start
       usePolling: true,       // forces polling (works on weird FS setups)
-      interval: 500,          // poll every 500ms
+      interval: 50,          // poll every 500ms
       binaryInterval: 500,    // also poll binary files
       awaitWriteFinish: {
         stabilityThreshold: 200,   // wait for 200ms of no changes
@@ -53,9 +55,6 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
   );
 
   watcher
-    .on('add', path => consola.info(`File added: ${path}`))
-    .on('change', path => consola.info(`File changed: ${path}`))
-    .on('unlink', path => consola.info(`File removed: ${path}`))
     .on('error', error => consola.error('Watcher error', error))
     .on('raw', (event, path, details) => {
       consola.debug('Raw event:', event, path, details);
@@ -66,7 +65,7 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
   watcher.on('unlink', rebuild);
 
   // HTTP server
-  const server = http.createServer((req, res) => {
+  const server = http.createServer(async (req, res) => {
     if (req.url === '/clippy.js') {
       res.writeHead(200, {
         'Content-Type': 'application/javascript',
@@ -80,6 +79,12 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
         Location: `https://turbowarp.org/editor?extension=http://localhost:${port}/clippy.js`,
       });
       res.end();
+    } else if (req.url === '/lint-results') {
+      if (!lintResults) lintResults = await lintExtensionFiles({develop:true});
+      res.writeHead(200, {
+        'Content-Type': 'text/html'
+      });
+      res.end(lintResults);
     } else {
       res.writeHead(404);
       res.end();
