@@ -3,9 +3,11 @@ import chokidar from 'chokidar';
 import http from 'http';
 import { WebSocketServer } from 'ws';
 import { createConsola } from 'consola';
+import { findProjectPath } from './parse-scratch.js';
 
 export async function startDevServer({ port = 8000, verbose = false, ...argv } = {}) {
   const consola = createConsola({ level: verbose ? 999 : 3 });
+  const projectPath = findProjectPath();
   let latestJS = '';
 
   // Set up WebSocket server
@@ -30,12 +32,38 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
   // Initial build
   await rebuild();
 
-  // Watch src/ and scratch.yaml
-  const watcher = chokidar.watch(['src/**/*', 'scratch.yaml'], { ignoreInitial: true });
-  watcher.on('all', async (event, file) => {
-    consola.info(`File changed: ${file} (${event})`);
-    await rebuild();
-  });
+  const watcher = chokidar.watch(
+    [
+      `${projectPath}/src`,            // watch the entire src folder
+      `${projectPath}/scratch.yaml`,   // watch the single file
+    ],
+    {
+      persistent: true,
+      ignoreInitial: true,    // don’t fire for existing files on start
+      usePolling: true,       // forces polling (works on weird FS setups)
+      interval: 500,          // poll every 500ms
+      binaryInterval: 500,    // also poll binary files
+      awaitWriteFinish: {
+        stabilityThreshold: 200,   // wait for 200ms of no changes
+        pollInterval: 100          // check every 100ms
+      },
+      followSymlinks: true,
+      ignorePermissionErrors: true,
+    }
+  );
+
+  watcher
+    .on('add', path => consola.info(`File added: ${path}`))
+    .on('change', path => consola.info(`File changed: ${path}`))
+    .on('unlink', path => consola.info(`File removed: ${path}`))
+    .on('error', error => consola.error('Watcher error', error))
+    .on('raw', (event, path, details) => {
+      consola.debug('Raw event:', event, path, details);
+    });
+
+  watcher.on('add', rebuild);
+  watcher.on('change', rebuild);
+  watcher.on('unlink', rebuild);
 
   // HTTP server
   const server = http.createServer((req, res) => {

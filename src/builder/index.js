@@ -34,9 +34,12 @@ export const build = async ({
     let entryContent = "";
 
     // Import blocks
+    const blockIds = [];
     blockFiles.forEach((file, i) => {
       const importPath = path.relative("/tmp/clippy", file).replace(/\\/g, "/");
+      const fileName = path.basename(file, ".js");
       entryContent += `import block${i} from "${importPath}";\n`;
+      blockIds.push({ varName: `block${i}`, opcode: fileName });
     });
 
     // Import menus
@@ -47,34 +50,25 @@ export const build = async ({
       menusEntries.push(`CLIPPY_MENU_${i}: menu${i}`);
     });
 
-    // Include dev reload if needed
+    // Dev reload snippet
     if (develop) {
       entryContent += `
-    /*!
-    **************************************************************************
-    *                                                                        *
-    *  WARNING FOR DEVS:                                                     *
-    *  This is a development reload script meant for the dev server only.    *
-    *  Use "clippy build" instead of "clippy dev" to omit this snippet.      *
-    *                                                                        *
-    **************************************************************************
-    */
-    (function(){
-      try {
-        const ws = new WebSocket('ws://localhost:8000');
-        ws.addEventListener('message', (event) => {
-          const data = JSON.parse(event.data);
-          if (data.type === 'extension_update') {
-            console.log('[Clippy Dev] Reloading extension...');
-            location.reload();
-          }
-        });
-        ws.addEventListener('open', () => console.log('[Clippy Dev] Connected to dev server'));
-        ws.addEventListener('close', () => console.log('[Clippy Dev] Disconnected from dev server'));
-      } catch(e) {
-        console.warn('[Clippy Dev] WebSocket failed', e);
-      }
-    })();\n`;
+/*! NOTE: Dev mode is enabled.
+    You should not paste extensions from dev server into websites or projects.
+    Use "clippy build" instead. */
+(function(){
+  try {
+    const ws = new WebSocket('ws://localhost:8000');
+    ws.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'extension_update') location.reload();
+    });
+    ws.addEventListener('open', () => console.log('[Clippy Dev] Connected to dev server'));
+    ws.addEventListener('close', () => console.log('[Clippy Dev] Disconnected from dev server'));
+  } catch(e) {
+    console.warn('[Clippy Dev] WebSocket failed', e);
+  }
+})();\n`;
     }
 
     // Main extension class
@@ -92,14 +86,16 @@ class _CLIPPY_GENERATED_ {
       id: ${JSON.stringify(config.id)},
       name: ${JSON.stringify(config.name)},
       blocks: [
-        ${blockFiles
-          .map(
-            (_, i) => `{
-          opcode: ${JSON.stringify(`block${i}`)},
-          blockType: block${i}.blockType,
-          text: ${JSON.stringify(blockFiles[i].text || `block${i}`)}
-        }`
-          )
+        ${blockIds
+          .map(b => {
+            // We create a temporary representation that excludes 'def'
+            const spreadLogic = `Object.fromEntries(Object.entries(${b.varName}).filter(([k]) => k !== 'def'))`;
+            
+            return `{
+              opcode: ${JSON.stringify(b.opcode)},
+              ...${spreadLogic}
+            }`;
+          })
           .join(",\n")}
       ],
       menus: {
@@ -108,15 +104,13 @@ class _CLIPPY_GENERATED_ {
     };
   }
 
-  ${blockFiles
-    .map(
-      (_, i) => `
-  ${"block" + i}(args) {
-    const result = block${i}.def ? block${i}.def(args) : undefined;
+  ${blockIds
+    .map(b => `
+  ${b.opcode}(args) {
+    const result = ${b.varName}.def ? ${b.varName}.def(args) : undefined;
     ${develop ? `if (result === undefined) console.warn('A block has been removed. This may CORRUPT existing projects.');` : ""}
     return result;
-  }`
-    )
+  }`)
     .join("\n")}
 }
 
@@ -142,12 +136,15 @@ Scratch.extensions.register(new _CLIPPY_GENERATED_());
       legalComments: "inline",
       sourcemap: develop ? "inline" : false,
       target: target || "es2018",
-      plugins: [wrapIIFEPlugin("Scratch"), {
-        name: "preserve-scratch",
-        setup(build) {
-          build.onResolve({ filter: /^Scratch$/ }, (args) => ({ path: args.path, external: true }));
+      plugins: [
+        wrapIIFEPlugin("Scratch"),
+        {
+          name: "preserve-scratch",
+          setup(build) {
+            build.onResolve({ filter: /^Scratch$/ }, args => ({ path: args.path, external: true }));
+          },
         },
-      }],
+      ],
       ...esbuildOptions,
       write: false,
     });
