@@ -1,0 +1,13 @@
+{
+  "name": "@ampmod/clippy",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "8to16",
+  "license": "MPL-2.0",
+  "packageManager": "pnpm@10.26.1"
+}
