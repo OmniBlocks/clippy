@@ -38,7 +38,7 @@ export const build = async ({
     blockFiles.forEach((file, i) => {
       const importPath = path.relative("/tmp/clippy", file).replace(/\\/g, "/");
       const fileName = path.basename(file, ".js");
-      entryContent += `import block${i} from "${importPath}";\n`;
+      entryContent += `import block${i} from ${JSON.stringify(importPath)};\n`;
       blockIds.push({ varName: `block${i}`, opcode: fileName });
     });
 
@@ -46,7 +46,7 @@ export const build = async ({
     const menusEntries = [];
     menuFiles.forEach((file, i) => {
       const importPath = path.relative("/tmp/clippy", file).replace(/\\/g, "/");
-      entryContent += `import menu${i} from "${importPath}";\n`;
+      entryContent += `import menu${i} from ${JSON.stringify(importPath)};\n`;
       menusEntries.push(`CLIPPY_MENU_${i}: menu${i}`);
     });
 
@@ -72,23 +72,23 @@ export const build = async ({
     }
 
     // Main extension class
+    // We use the global 'config' which is injected via esbuild's define
     entryContent += `
 /*! Built using Clippy, the extension compiler | https://codeberg.org/ampmod/clippy */
 'use strict';
 
 if (!Scratch.extensions.unsandboxed) {
-  throw new Error(${JSON.stringify(config.name)} + ' must run unsandboxed');
+  throw new Error(config.name + ' must run unsandboxed');
 }
 
 class _CLIPPY_GENERATED_ {
   getInfo() {
     return {
-      id: ${JSON.stringify(config.id)},
-      name: ${JSON.stringify(config.name)},
+      id: config.id,
+      name: config.name,
       blocks: [
         ${blockIds
           .map(b => {
-            // We create a temporary representation that excludes 'def'
             const spreadLogic = `Object.fromEntries(Object.entries(${b.varName}).filter(([k]) => k !== 'def'))`;
             
             return `{
@@ -114,6 +114,8 @@ class _CLIPPY_GENERATED_ {
     .join("\n")}
 }
 
+const extension = _CLIPPY_GENERATED_;
+if (config.expose) Scratch.vm.runtime['ext_' + config.id] = _CLIPPY_GENERATED_;
 Scratch.extensions.register(new _CLIPPY_GENERATED_());
 `;
 
@@ -136,6 +138,9 @@ Scratch.extensions.register(new _CLIPPY_GENERATED_());
       legalComments: "inline",
       sourcemap: develop ? "inline" : false,
       target: target || "es2018",
+      define: {
+        config: JSON.stringify(config),
+      },
       plugins: [
         wrapIIFEPlugin("Scratch"),
         {
