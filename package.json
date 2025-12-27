@@ -24,6 +24,7 @@
     "jiti": "^2.6.1",
     "js-yaml": "^4.1.1",
     "json5": "^2.2.3",
+    "reconnecting-websocket": "^4.4.0",
     "ws": "^8.18.3",
     "yargs": "^18.0.0",
     "zod": "^4.2.1"

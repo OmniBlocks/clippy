@@ -1,57 +1,7 @@
-import blockDefinitions from 'clippy:blocks';
-import menuDefinitions from 'clippy:menus';
-import config from 'clippy:config';
-import { isDevelop } from 'clippy:info';
-
-if (isDevelop) {
-  try {
-    const ws = new WebSocket('ws://localhost:8000');
-
-    function showOverlay(message) {
-      let overlay = document.getElementById('clippy-error-overlay');
-      if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'clippy-error-overlay';
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(200,0,0,0.85)';
-        overlay.style.color = '#fff';
-        overlay.style.fontFamily = 'monospace';
-        overlay.style.fontSize = '14px';
-        overlay.style.whiteSpace = 'pre-wrap';
-        overlay.style.zIndex = '9999';
-        overlay.style.padding = '20px';
-        overlay.style.overflowY = 'auto';
-        document.body.appendChild(overlay);
-      }
-      overlay.textContent = message;
-      overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-      const overlay = document.getElementById('clippy-error-overlay');
-      if (overlay) overlay.style.display = 'none';
-    }
-
-    ws.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      if (data.type === 'extension_update') {
-        hideOverlay();
-        location.reload();
-      } else if (data.type === 'extension_update_failed') {
-        showOverlay(data.error);
-      }
-    };
-
-    ws.onopen = () => console.log('[Clippy Dev] Connected');
-    ws.onerror = (e) => console.warn('[Clippy Dev] WebSocket error', e);
-  } catch (e) {
-    console.warn('[Clippy Dev] WebSocket failed', e);
-  }
-}
+import blockDefinitions from '$/blocks';
+import menuDefinitions from '$/menus';
+import config from '$/config';
+import { isDevelop } from '$/info';
 
 if (!Scratch.extensions.unsandboxed && !config.sandboxAllowed) {
   throw new Error(`${config.name} must run unsandboxed`);

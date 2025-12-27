@@ -32,7 +32,7 @@ export const build = async ({
     const menuFiles = await fg("*.js", { cwd: menusDir, absolute: true });
 
     const context = await esbuild.context({
-      entryPoints: ['clippy:scratch'],
+      entryPoints: ['$/scratch'],
       bundle: true,
       format: "iife",
       minifyIdentifiers: false,

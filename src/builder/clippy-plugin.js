@@ -6,38 +6,43 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const clippyPlugin = (config, blockFiles, menuFiles, develop) => ({
   name: 'clippy-plugin',
   setup(build) {
-    build.onResolve({ filter: /^clippy:/ }, args => ({
-      path: args.path,
-      namespace: 'clippy-ns',
+    build.onResolve({ filter: /^\$\// }, args => ({
+      path: args.path.slice(2),
+      namespace: '__clippy_internal__',
     }));
 
-    build.onLoad({ filter: /.*/, namespace: 'clippy-ns' }, (args) => {
-      if (args.path === 'clippy:scratch') {
+    build.onLoad({ filter: /.*/, namespace: '__clippy_internal__' }, (args) => {
+      const subPath = args.path;
+
+      if (subPath === 'scratch') {
         const templatePath = path.resolve(__dirname, './extension-template.js');
+        const devtoolsPath = path.resolve(__dirname, './devtools.js');
+
         return {
-          contents: `export * from ${JSON.stringify(templatePath)};`,
+          contents: `"use strict";
+        ${develop ? `import "./${path.basename(devtoolsPath)}"` : ''};
+        export * from ${JSON.stringify(templatePath)};`,
           loader: 'js',
           resolveDir: path.dirname(templatePath),
         };
       }
 
-      if (args.path === 'clippy:info') {
+      if (subPath === 'info') {
         return {
-          contents: `export const isDevelop = ${Boolean(develop)};`,
+          contents: `"use strict";\nexport const isDevelop = ${Boolean(develop)};`,
           loader: 'js',
         };
       }
 
-      if (args.path === 'clippy:config') {
+      if (subPath === 'config') {
         return {
-          contents: `export default JSON.parse(${JSON.stringify(JSON.stringify(config))});`,
+          contents: `"use strict";\nexport default JSON.parse(${JSON.stringify(JSON.stringify(config))});`,
           loader: 'js',
         };
       }
 
-      if (args.path === 'clippy:blocks' || args.path === 'clippy:menus') {
-        const isBlocks = args.path === 'clippy:blocks';
-        const files = isBlocks ? blockFiles : menuFiles;
+      if (subPath === 'blocks' || subPath === 'menus') {
+        const files = subPath === 'blocks' ? blockFiles : menuFiles;
 
         const imports = files.map((file, i) =>
           `import * as item${i} from ${JSON.stringify(file)};`
@@ -49,16 +54,9 @@ export const clippyPlugin = (config, blockFiles, menuFiles, develop) => ({
         }).join(',\n  ');
 
         return {
-          contents: `${imports}\n\nexport default [\n  ${exportsArray}\n];`,
+          contents: `"use strict";\n${imports}\n\nexport default [\n  ${exportsArray}\n];`,
           loader: 'js',
           resolveDir: process.cwd(),
-        };
-      }
-
-      if (args.path === 'clippy:config') {
-        return {
-          contents: `export default JSON.parse(${JSON.stringify(JSON.stringify(config))});`,
-          loader: 'js',
         };
       }
 

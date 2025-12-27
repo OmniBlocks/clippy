@@ -96,7 +96,7 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
           rules: {
             "no-restricted-imports": ["error", {
               patterns: [{
-                group: ["clippy:*", "!clippy:config"],
+                group: ["$/*", "!$/config"],
                 message: "Internal modules should never be imported in userland"
               }]
             }],
