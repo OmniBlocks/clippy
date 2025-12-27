@@ -11,7 +11,7 @@ export async function startDevServer({ consolaInstance, port = 8000, verbose = f
   let latestJS = '';
   let lintResults;
 
-  const context = await build({ develop: true, consolaInstance, ...argv });
+  const context = await build({ develop: true, verbose, consolaInstance, ...argv });
   if (!context) throw new Error('Failed to create esbuild context');
 
   try {
