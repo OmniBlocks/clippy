@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const clippyPlugin = (config, blockFiles, menuFiles, develop) => ({
+export const clippyPlugin = (config, blockFiles, menuFiles, develop, target) => ({
   name: 'clippy-plugin',
   setup(build) {
     build.onResolve({ filter: /^\$\// }, args => ({
@@ -29,7 +29,7 @@ export const clippyPlugin = (config, blockFiles, menuFiles, develop) => ({
 
       if (subPath === 'info') {
         return {
-          contents: `"use strict";\nexport const isDevelop = ${Boolean(develop)};`,
+          contents: `"use strict";\nexport const isDevelop = ${Boolean(develop)};\nexport const target = ${JSON.stringify(target)};`,
           loader: 'js',
         };
       }

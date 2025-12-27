@@ -10,6 +10,7 @@ import { clippyPlugin } from "./clippy-plugin.js";
 export const build = async ({
   minify,
   target,
+  mod,
   verbose,
   develop,
   esbuildOptions,
@@ -46,7 +47,7 @@ export const build = async ({
       logLevel: verbose ? 'verbose' : 'info',
       target: target || (develop ? "esnext" : "es2018"),
       plugins: [
-        clippyPlugin(config, blockFiles, menuFiles, develop),
+        clippyPlugin(config, blockFiles, menuFiles, develop, mod),
         wrapIIFEPlugin("Scratch"),
         {
           name: "preserve-scratch",

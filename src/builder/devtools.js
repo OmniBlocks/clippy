@@ -35,8 +35,8 @@ const overlay = (() => {
   };
 })();
 
-ws.addEventListener('open', () => console.log('[Clippy Dev] Connected'));
-ws.addEventListener('error', e => console.warn('[Clippy Dev] WebSocket error', e));
+ws.addEventListener('open', () => console.info('clippy: connected to dev server'));
+ws.addEventListener('error', e => console.warn('clippy: disconnected from dev server', e));
 ws.addEventListener('message', e => {
   const data = JSON.parse(e.data);
   if (data.type === 'extension_update') {

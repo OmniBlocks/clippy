@@ -43,7 +43,7 @@ yargs(hideBin(process.argv))
         default: 'dist/extension.js'
       });
   }, async (argv) => {
-    const context = await createContext({ verbose: argv.verbose, minify: argv.minify, target: argv.target, consolaInstance });
+    const context = await createContext({ verbose: argv.verbose, minify: argv.minify, target: argv.target, consolaInstance, mod: argv.mod });
     if (!context) return process.exit(1);
 
     try {
@@ -77,9 +77,15 @@ yargs(hideBin(process.argv))
       type: 'string',
       describe: 'ESBuild target.',
       default: 'esnext'
-    });
+    })
+  .option('mod', {
+    alias: 'm',
+    type: 'string',
+    default: 'tw',
+    describe: 'The mod to target.'
+  })
   }, async (argv) => {
-    await startDevServer({ port: 8000, verbose: argv.verbose, consolaInstance });
+    await startDevServer({ port: 8000, verbose: argv.verbose, mod: argv.mod, consolaInstance });
   })
 
   .option('verbose', {
