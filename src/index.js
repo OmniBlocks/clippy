@@ -7,6 +7,7 @@ import { init } from './init.js';
 import path from 'path';
 import fs from 'fs';
 import { lintExtensionFiles } from './lint.js';
+import { findProjectPath } from './builder/parse-scratch.js';
 
 yargs(hideBin(process.argv))
   .command('build', 'Build based off the closest scratch.yaml file.', (yargs) => {
@@ -37,7 +38,7 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     const js = await build({ verbose: argv.verbose, minify: argv.minify, target: argv.target });
       if (js) {
-        const outPath = path.resolve(argv.out);
+        const outPath = path.resolve(path.join(findProjectPath(), argv.out));
         const outDir = path.dirname(outPath);
         if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
         fs.writeFileSync(outPath, js, "utf-8");
