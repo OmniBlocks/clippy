@@ -2,17 +2,26 @@ import { build } from './index.js';
 import chokidar from 'chokidar';
 import http from 'http';
 import { WebSocketServer } from 'ws';
-import { createConsola } from 'consola';
 import { findProjectPath } from './parse-scratch.js';
 import { lintExtensionFiles } from '../lint.js';
 
-export async function startDevServer({ port = 8000, verbose = false, ...argv } = {}) {
-  const consola = createConsola({ level: verbose ? 999 : 3 });
+export async function startDevServer({ consolaInstance, port = 8000, verbose = false, ...argv } = {}) {
+  const consola = consolaInstance;
   const projectPath = findProjectPath();
   let latestJS = '';
   let lintResults;
 
-  // Set up WebSocket server
+  const context = await build({ develop: true, consolaInstance, ...argv });
+  if (!context) throw new Error('Failed to create esbuild context');
+
+  try {
+    const result = await context.rebuild();
+    if (result?.outputFiles?.[0]?.text) latestJS = result.outputFiles[0].text;
+    lintResults = await lintExtensionFiles({ develop: true });
+  } catch (err) {
+    consola.error('[Clippy Dev] Initial build failed:', err);
+  }
+
   const wss = new WebSocketServer({ noServer: true });
   function broadcastUpdate() {
     wss.clients.forEach(client => {
@@ -23,32 +32,32 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
   }
 
   async function rebuild() {
-    const js = await build({ develop: true, consola, ...argv });
-    if (js) {
-      latestJS = js;
-      broadcastUpdate(); // notify connected clients
-      lintResults = await lintExtensionFiles({develop:true});
+    try {
+      const result = await context.rebuild();
+      if (result?.outputFiles?.[0]?.text) {
+        latestJS = result.outputFiles[0].text;
+        broadcastUpdate();
+      }
+      lintResults = await lintExtensionFiles({ develop: true });
+    } catch (err) {
+      consola.error('[Clippy Dev] Rebuild failed:', err);
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ type: 'extension_update_failed', error: err.message }));
+        }
+      });
     }
   }
 
-  // Initial build
-  await rebuild();
-
   const watcher = chokidar.watch(
-    [
-      `${projectPath}/src`,            // watch the entire src folder
-      `${projectPath}/scratch.yaml`,   // watch the single file
-    ],
+    [`${projectPath}/src`, `${projectPath}/scratch.*`],
     {
       persistent: true,
-      ignoreInitial: true,    // don’t fire for existing files on start
-      usePolling: true,       // forces polling (works on weird FS setups)
-      interval: 50,          // poll every 500ms
-      binaryInterval: 500,    // also poll binary files
-      awaitWriteFinish: {
-        stabilityThreshold: 200,   // wait for 200ms of no changes
-        pollInterval: 100          // check every 100ms
-      },
+      ignoreInitial: true,
+      usePolling: true,
+      interval: 50,
+      binaryInterval: 500,
+      awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 100 },
       followSymlinks: true,
       ignorePermissionErrors: true,
     }
@@ -56,13 +65,10 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
 
   watcher
     .on('error', error => consola.error('Watcher error', error))
-    .on('raw', (event, path, details) => {
-      consola.debug('Raw event:', event, path, details);
-    });
-
-  watcher.on('add', rebuild);
-  watcher.on('change', rebuild);
-  watcher.on('unlink', rebuild);
+    .on('raw', (event, path, details) => consola.debug('Raw event:', event, path, details))
+    .on('add', rebuild)
+    .on('change', rebuild)
+    .on('unlink', rebuild);
 
   // HTTP server
   const server = http.createServer(async (req, res) => {
@@ -80,10 +86,8 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
       });
       res.end();
     } else if (req.url === '/lint-results') {
-      if (!lintResults) lintResults = await lintExtensionFiles({develop:true});
-      res.writeHead(200, {
-        'Content-Type': 'text/html'
-      });
+      if (!lintResults) lintResults = await lintExtensionFiles({ develop: true });
+      res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(lintResults);
     } else {
       res.writeHead(404);
@@ -91,7 +95,6 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
     }
   });
 
-  // Upgrade HTTP server to handle WebSocket connections
   server.on('upgrade', (req, socket, head) => {
     wss.handleUpgrade(req, socket, head, ws => {
       wss.emit('connection', ws, req);
@@ -102,10 +105,7 @@ export async function startDevServer({ port = 8000, verbose = false, ...argv } =
     consola.success(`http://localhost:${port} redirects to TurboWarp with your extension.`);
   });
 
-  // Optional: log WebSocket connections
-  wss.on('connection', ws => {
-    consola.info('Extension loaded');
-  });
+  wss.on('connection', ws => consola.info('Extension loaded'));
 
-  return { server, wss };
+  return { server, wss, context };
 }

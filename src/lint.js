@@ -4,7 +4,7 @@ import fg from "fast-glob";
 import { ESLint } from "eslint";
 import { createConsola } from "consola";
 
-export async function lintExtensionFiles({ develop = false, verbose = false } = {}) {
+export async function lintExtensionFiles({ develop = false, verbose = false, fix = false } = {}) {
   const consola = createConsola({ level: verbose ? 999 : 3 });
 
   try {
@@ -23,11 +23,65 @@ export async function lintExtensionFiles({ develop = false, verbose = false } = 
 
     const eslint = new ESLint({
       cwd: projectPath,
+      fix,
       overrideConfigFile: true,
       overrideConfig: [
         {
           plugins: {
             import: (await import("eslint-plugin-import")).default,
+            clippy: {
+              rules: {
+                "opcode": {
+                  meta: { type: "problem" },
+                  create(context) {
+                    function checkObject(node, obj) {
+                      if (!obj || obj.type !== "ObjectExpression") return;
+                      const hasOpcode = obj.properties.some(p => p.key?.name === "opcode");
+                      if (hasOpcode) {
+                        context.report({
+                          node,
+                          message: 'Do not define opcode; instead, set the opcode using the block\'s filename.',
+                        });
+                      }
+                    }
+                    return {
+                      ExportNamedDeclaration(node) {
+                        const decl = node.declaration?.declarations?.[0]?.init;
+                        checkObject(node, decl);
+                      },
+                      ExportDefaultDeclaration(node) {
+                        checkObject(node, node.declaration);
+                      },
+                    };
+                  },
+                },
+
+                "no-def": {
+                  meta: { type: "problem" },
+                  create(context) {
+                    function checkObject(node, obj) {
+                      if (!obj || obj.type !== "ObjectExpression") return;
+                      const hasDef = obj.properties.some(p => p.key?.name === "def");
+                      if (!hasDef) {
+                        context.report({
+                          node,
+                          message: 'Block definition is missing.',
+                        });
+                      }
+                    }
+                    return {
+                      ExportNamedDeclaration(node) {
+                        const decl = node.declaration?.declarations?.[0]?.init;
+                        checkObject(node, decl);
+                      },
+                      ExportDefaultDeclaration(node) {
+                        checkObject(node, node.declaration);
+                      },
+                    };
+                  },
+                },
+              },
+            },
           },
           languageOptions: {
             ecmaVersion: "latest",
@@ -41,9 +95,9 @@ export async function lintExtensionFiles({ develop = false, verbose = false } = 
           },
           rules: {
             "no-restricted-imports": ["error", {
-              "patterns": [{
-                "group": ["clippy:*", "!clippy:config"],
-                "message": "Internal modules should never be imported in userland"
+              patterns: [{
+                group: ["clippy:*", "!clippy:config"],
+                message: "Internal modules should never be imported in userland"
               }]
             }],
             "no-undef": "off",
@@ -53,19 +107,15 @@ export async function lintExtensionFiles({ develop = false, verbose = false } = 
             "quotes": "off",
             "semi": "off",
             "import/no-commonjs": "error",
-            "import/no-commonjs": "error",
             "import/no-amd": "error",
             "import/no-duplicates": "error",
             "import/order": ["warn", {
-              "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+              groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
               "newlines-between": "always",
             }],
             "import/named": "error",
             "import/namespace": "error",
             "import/no-unresolved": "error",
-            "import/no-unused-modules": ["error", {
-              missingExports: true,
-            }],
             "no-unsafe-finally": "error",
             "no-unsafe-negation": "error",
             "no-ex-assign": "error",
@@ -75,11 +125,7 @@ export async function lintExtensionFiles({ develop = false, verbose = false } = 
             "no-async-promise-executor": "error",
             "no-await-in-loop": "warn",
             "require-atomic-updates": "warn",
-            "no-implicit-coercion": ["warn", {
-              boolean: false,
-              string: true,
-              number: true,
-            }],
+            "no-implicit-coercion": ["warn", { boolean: false, string: true, number: true }],
             "radix": "error",
             "no-mixed-operators": ["warn", {
               groups: [
@@ -90,38 +136,33 @@ export async function lintExtensionFiles({ develop = false, verbose = false } = 
               ],
             }],
             "no-loop-func": "error",
-            "no-caller": "error",
-            "no-new-func": "error",
+            "no-caller": "warn",
+            "no-new-func": "warn",
             "no-proto": "error",
             "guard-for-in": "error",
             "no-eval": "warn",
             "no-implied-eval": "error",
-            "no-new-func": "warn",
             "no-script-url": "warn",
-            "no-caller": "warn",
-            "no-implied-eval": "error",
             "default-case": "warn",
             "no-self-compare": "error",
             "no-unmodified-loop-condition": "error",
-            "no-unused-expressions": ["error", {
-              allowShortCircuit: true,
-              allowTernary: true,
-            }],
+            "no-unused-expressions": ["error", { allowShortCircuit: true, allowTernary: true }],
+
+            "clippy/opcode": "error",
+            "clippy/no-def": "error",
           },
         },
         {
           files: ["src/blocks/*.js", "src/menus/*.js"],
           rules: {
-            "import/no-unused-modules": ["error", {
-              missingExports: true
-            }],
+            "import/no-unused-modules": ["error", { missingExports: true }],
           },
         }
       ],
     });
 
     const results = await eslint.lintFiles(filesToLint);
-    
+
     const formatter = await eslint.loadFormatter(develop ? "html" : "stylish");
     const resultText = await formatter.format(results);
 

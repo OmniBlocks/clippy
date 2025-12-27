@@ -1,4 +1,4 @@
-import { build as esbuild } from "esbuild";
+import esbuild from "esbuild";
 import { findProjectPath, parseScratch } from "./parse-scratch.js";
 import { createConsola } from "consola";
 import { logZodError } from "./format-zod-error.js";
@@ -15,10 +15,9 @@ export const build = async ({
   esbuildOptions,
   consolaInstance,
 }) => {
-  const consola = consolaInstance ?? createConsola({ level: verbose ? 999 : 3 });
+  const consola = consolaInstance;
 
   try {
-    // 1. Restore Path & Config Discovery
     const projectPath = findProjectPath();
     consola.debug(`Found Scratch config at ${projectPath}`);
 
@@ -32,7 +31,7 @@ export const build = async ({
     const menusDir = path.join(projectPath, "src/menus");
     const menuFiles = await fg("*.js", { cwd: menusDir, absolute: true });
 
-    const result = await esbuild({
+    const context = await esbuild.context({
       entryPoints: ['clippy:scratch'],
       bundle: true,
       format: "iife",
@@ -44,6 +43,7 @@ export const build = async ({
       sourcesContent: false,
       legalComments: "inline",
       sourcemap: develop ? "inline" : false,
+      logLevel: verbose ? 'verbose' : 'info',
       target: target || (develop ? "esnext" : "es2018"),
       plugins: [
         clippyPlugin(config, blockFiles, menuFiles, develop),
@@ -59,31 +59,7 @@ export const build = async ({
       write: false,
     });
 
-    let resultText = result.outputFiles[0].text;
-
-    if (develop) {
-      const devSnippet = `
-(function(){
-  try {
-    const ws = new WebSocket('ws://localhost:8000');
-    ws.onmessage = (e) => JSON.parse(e.data).type === 'extension_update' && location.reload();
-    ws.onopen = () => console.log('[Clippy Dev] Connected');
-  } catch(e) { console.warn('[Clippy Dev] WebSocket failed', e); }
-})();\n`;
-      resultText = devSnippet + resultText;
-    }
-
-    if (config.galleryData) {
-      const g = config.galleryData;
-      const galleryComments =
-        `// Name: ${JSON.stringify(g.name || config.name).slice(1, -1)}\n` +
-        `// ID: ${JSON.stringify(config.id).slice(1, -1)}\n` +
-        `// Description: ${JSON.stringify(g.description || "").slice(1, -1)}\n` +
-        `// License: ${JSON.stringify(g.license || "unlicense").slice(1, -1)}\n\n`;
-      resultText = galleryComments + resultText;
-    }
-
-    return resultText;
+    return context;
 
   } catch (err) {
     logZodError(consola, err, { verbose });
