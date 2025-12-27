@@ -1,18 +1,28 @@
 export function wrapIIFEPlugin(argName = "Scratch") {
   return {
-    name: "wrap-iife",
+    name: "rewrite-esbuild-iife",
     setup(build) {
-      // onEnd is called after esbuild finishes bundling
       build.onEnd(result => {
-        if (!result.outputFiles || result.outputFiles.length === 0) return;
+        if (!result.outputFiles) return;
 
-        result.outputFiles.forEach(file => {
-          if (!file.path.endsWith(".js")) return;
+        for (const file of result.outputFiles) {
+          if (!file.path.endsWith(".js")) continue;
 
-          const original = file.text;
+          let text = file.text;
 
-          file.text = `(function(${argName}){\n${original}\n})(${argName});`;
-        });
+          const iifeRegex =
+            /^\(\s*(?:function\s*\(\)|\(\s*\)\s*=>)\s*\{([\s\S]*)\}\s*\)\s*\(\s*\)\s*;?\s*$/;
+
+          const match = text.match(iifeRegex);
+          if (!match) continue;
+
+          const body = match[1];
+
+          file.text =
+            `(function(${argName}) {\n` +
+            body +
+            `\n})(${argName});`;
+        }
       });
     }
   };

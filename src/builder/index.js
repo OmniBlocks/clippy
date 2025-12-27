@@ -33,7 +33,7 @@ export const build = async ({
     const menusDir = path.join(projectPath, "src/menus");
     const menuFiles = await fg("*.js", { cwd: menusDir, absolute: true });
 
-    const enableProgress = !process.env.CI;
+    const enableProgress = !process.env.CI && !verbose;
 
     const context = await esbuild.context({
       entryPoints: ['$/scratch'],
@@ -52,12 +52,6 @@ export const build = async ({
       plugins: [
         clippyPlugin(config, blockFiles, menuFiles, develop, mod),
         wrapIIFEPlugin("Scratch"),
-        {
-          name: "preserve-scratch",
-          setup(build) {
-            build.onResolve({ filter: /^Scratch$/ }, args => ({ path: args.path, external: true }));
-          },
-        },
         ...enableProgress ? [progressPlugin()] : []
       ],
       ...esbuildOptions,
