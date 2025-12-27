@@ -27,13 +27,6 @@ export const clippyPlugin = (config, blockFiles, menuFiles, develop, target) => 
         };
       }
 
-      if (subPath === 'info') {
-        return {
-          contents: `"use strict";\nexport const isDevelop = ${Boolean(develop)};\nexport const target = ${JSON.stringify(target)};`,
-          loader: 'js',
-        };
-      }
-
       if (subPath === 'config') {
         return {
           contents: `"use strict";\nexport default JSON.parse(${JSON.stringify(JSON.stringify(config))});`,
