@@ -99,7 +99,7 @@ export async function startDevServer({ consolaInstance, port = 8000, verbose = f
   });
 
   server.listen(port, () => {
-    console.log(`\n  \x1b[32m\x1b[1mClippy Dev Server\x1b[0m \x1b[32mv${process.env.npm_package_version || '1.0.0'}\x1b[0m`);
+    console.log(`\n  \x1b[32m\x1b[1mClippy Dev Server\x1b[0m`);
     console.log(`  \x1b[1m➜\x1b[0m  \x1b[1mGo to:\x1b[0m   \x1b[36mhttp://localhost:\x1b[1m${port}/\x1b[0m`);
     console.log(`  \x1b[1m➜\x1b[0m  \x1b[1mTarget:\x1b[0m  \x1b[35m${currentMod.name}\x1b[0m\n`);
   });
