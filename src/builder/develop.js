@@ -81,6 +81,10 @@ export async function startDevServer({ consolaInstance, port = 8000, verbose = f
       });
       return res.end(latestJS);
     } 
+    if (req.url === '/lint-results') {
+      res.writeHead(200);
+      return res.end(lintResults);
+    } 
     
     if (req.url === '/' || req.url === '/index.html') {
       res.writeHead(302, { Location: currentMod.url(port) });
