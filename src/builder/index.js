@@ -6,6 +6,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import { wrapIIFEPlugin } from "./wrap-iife-plugin.js";
 import { clippyPlugin } from "./clippy-plugin.js";
+import progressPlugin from "esbuild-plugin-progress"; 
 
 export const build = async ({
   minify,
@@ -32,6 +33,8 @@ export const build = async ({
     const menusDir = path.join(projectPath, "src/menus");
     const menuFiles = await fg("*.js", { cwd: menusDir, absolute: true });
 
+    const enableProgress = !process.env.CI;
+
     const context = await esbuild.context({
       entryPoints: ['$/scratch'],
       bundle: true,
@@ -44,7 +47,7 @@ export const build = async ({
       sourcesContent: false,
       legalComments: "inline",
       sourcemap: develop ? "inline" : false,
-      logLevel: verbose ? 'verbose' : 'info',
+      logLevel: verbose ? 'verbose' : 'silent',
       target: target || (develop ? "esnext" : "es2018"),
       plugins: [
         clippyPlugin(config, blockFiles, menuFiles, develop, mod),
@@ -55,6 +58,7 @@ export const build = async ({
             build.onResolve({ filter: /^Scratch$/ }, args => ({ path: args.path, external: true }));
           },
         },
+        ...enableProgress ? [progressPlugin()] : []
       ],
       ...esbuildOptions,
       write: false,

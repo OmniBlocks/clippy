@@ -32,7 +32,6 @@ export async function startDevServer({ consolaInstance, port = 8000, verbose = f
       if (result?.outputFiles?.[0]?.text) {
         latestJS = result.outputFiles[0].text;
         if (!isInitial) {
-          consola.log(`\x1b[32m%s\x1b[0m \x1b[2m%s\x1b[0m \x1b[1m%s\x1b[0m`, `rebuild complete`, `in ${duration}ms`, ``);
           broadcastUpdate();
         }
       }
@@ -57,8 +56,6 @@ export async function startDevServer({ consolaInstance, port = 8000, verbose = f
   });
 
   watcher.on('change', (path) => {
-    const file = path.split('/').pop();
-    consola.log(`\x1b[36m%s\x1b[0m \x1b[2m%s\x1b[0m`, `hmr update`, file);
     performRebuild();
   });
 
@@ -98,11 +95,7 @@ export async function startDevServer({ consolaInstance, port = 8000, verbose = f
     wss.handleUpgrade(req, sock, head, ws => wss.emit('connection', ws, req));
   });
 
-  server.listen(port, () => {
-    console.log(`\n  \x1b[32m\x1b[1mClippy Dev Server\x1b[0m`);
-    console.log(`  \x1b[1m➜\x1b[0m  \x1b[1mGo to:\x1b[0m   \x1b[36mhttp://localhost:\x1b[1m${port}/\x1b[0m`);
-    console.log(`  \x1b[1m➜\x1b[0m  \x1b[1mTarget:\x1b[0m  \x1b[35m${currentMod.name}\x1b[0m\n`);
-  });
+  server.listen(port, () => {consola.info(`Redirect to editor: http://localhost:${port}`)});
 
   return { server, wss, context };
 }
