@@ -1,6 +1,5 @@
   import esbuild from "esbuild";
   import { findProjectPath, parseScratch } from "./parse-scratch.js";
-  import { createConsola } from "consola";
   import { logZodError } from "./format-zod-error.js";
   import path from "node:path";
   import fg from "fast-glob";
@@ -43,12 +42,12 @@
         minifySyntax: minify,
         minifyWhitespace: minify,
         treeShaking: !develop,
-        keepNames: true,
         sourcesContent: false,
         legalComments: "inline",
         sourcemap: develop ? "inline" : false,
         logLevel: verbose ? 'verbose' : 'silent',
-        target: target || (develop ? "esnext" : "es2018"),
+        target: target || "esnext",
+        keepNames: true,
         plugins: [
           clippyPlugin(config, blockFiles, menuFiles, develop, mod),
           wrapIIFEPlugin("Scratch"),

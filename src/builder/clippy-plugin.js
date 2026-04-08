@@ -16,11 +16,9 @@ export const clippyPlugin = (config, blockFiles, menuFiles, develop, target) => 
 
       if (subPath === 'scratch') {
         const templatePath = path.resolve(__dirname, './extension-template.js');
-        const devtoolsPath = path.resolve(__dirname, './devtools.js');
 
         return {
           contents: `"use strict";
-        ${develop ? `import "./${path.basename(devtoolsPath)}"` : ''};
         export * from ${JSON.stringify(templatePath)};`,
           loader: 'js',
           resolveDir: path.dirname(templatePath),

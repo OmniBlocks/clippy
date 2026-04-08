@@ -6,7 +6,9 @@ Clippy is a tool for building TurboWarp extensions. The name comes from an insid
 
 ### Is Clippy an "assistive" tool?
 
-We do not consider Clippy to be an assistive tool in the way things such as TurboBuilder or ExtForge are. Clippy is merely an abstraction for manually writing extensions. It is not a programming language; extensions are still written in javasript.
+We do not consider Clippy to be an assistive tool in the way things such as TurboBuilder or ExtForge are. Clippy is merely an abstraction for manually writing extensions. It is not a programming language; extensions are still written in JavaScript.
+
+Note that Clippy is currently unsuitable for publishing your extension to TurboWarp.
 
 ### todo
 

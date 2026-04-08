@@ -163,7 +163,7 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
 
     const results = await eslint.lintFiles(filesToLint);
 
-    const formatter = await eslint.loadFormatter(develop ? "html" : "stylish");
+    const formatter = await eslint.loadFormatter(develop ? "json" : "stylish");
     const resultText = await formatter.format(results);
 
     if (resultText) {

@@ -14,7 +14,7 @@ let consolaInstance;
 
 yargs(hideBin(process.argv))
   .middleware(argv => {
-    consolaInstance = createConsola({ level: argv.verbose ? 999 : 3 });
+    consolaInstance = createConsola({ level: argv.verbose ? 999 : 3, formatOptions: {date: false} });
   })
 
   .command('build', 'Build based off the closest scratch.yaml file.', (yargs) => {

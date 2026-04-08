@@ -14,32 +14,43 @@ if (!Scratch.extensions?.isPenguinMod?.() && target === 'pm') {
   throw new Error(`${config.name} must run in PenguinMod`);
 }
 
+let viewLint = () => "not loaded?"
+if (isDevelop) {
+  console.log("Loading devtools.")
+  import('./devtools').then((module) => {
+      const {dev, showLintingModal} = module;
+      console.log(module)
+      if (typeof dev === 'function') dev();
+      viewLint = showLintingModal
+    });
+}
+
 /* @__PURE__ */
 class Extension {
   getInfo() {
-    let blocks = blockDefinitions.map(b => ({
+    let definedBlocks = blockDefinitions.map(b => ({
       opcode: b.opcode,
       ...Object.fromEntries(
         Object.entries(b.module).filter(([k]) => k !== 'def')
       )
     }));
 
-    const hasOrdering = blocks.some(b => b.paletteOrder !== undefined);
+    const hasOrdering = definedBlocks.some(b => b.paletteOrder !== undefined);
     if (hasOrdering) {
-      blocks.sort((a, b) => (a.paletteOrder || 0) - (b.paletteOrder || 0));
+      definedBlocks.sort((a, b) => (a.paletteOrder || 0) - (b.paletteOrder || 0));
     }
 
-    const blocksWithGaps = [];
-    for (const block of blocks) {
-      blocksWithGaps.push(block);
+    const blocks = [];
+    for (const block of definedBlocks) {
+      blocks.push(block);
       if (block.gap) {
-        blocksWithGaps.push("---");
+        blocks.push("---");
       }
     }
 
     if (isDevelop) {
-      blocksWithGaps.unshift({
-        func: 'viewLintResults',
+      blocks.unshift({
+        func: '__CLIPPY_VIEW_LINT__',
         blockType: Scratch.BlockType.BUTTON,
         text: 'Open lint results (developer)'
       });
@@ -47,20 +58,20 @@ class Extension {
 
     return {
       id: config.id,
-      name: config.name,
+      name: isDevelop ? `${config.name} Dev` : config.name,
       docsURI: config?.docsURI ?? undefined,
       color1: config?.colors?.[0] ?? undefined,
       color2: config?.colors?.[1] ?? undefined,
       color3: config?.colors?.[2] ?? undefined,
-      blocks: blocksWithGaps,
+      blocks,
       menus: Object.fromEntries(
         menuDefinitions.map(m => [m.opcode, m.module])
       )
     };
   }
 
-  viewLintResults() {
-    window.open("http://localhost:8000/lint-results");
+  __CLIPPY_VIEW_LINT__() {
+    return viewLint()
   }
 }
 
@@ -69,6 +80,32 @@ for (const b of blockDefinitions) {
   /* @__PURE__ */
   Extension.prototype[b.opcode] = function(args) {
     if (typeof b.module.def === 'function') {
+      // If we are in development mode, wrap the block in a try/catch
+if (isDevelop) {
+  try {
+    return b.module.def(args);
+  } catch (err) {
+    import('./devtools').then(({ blockErrorModal, openInEditor }) => {
+      // Pass the file information to the modal
+      // Note: 'b.path' assumes your blockDefinitions include the source file path
+      blockErrorModal(
+        `Error in block: ${b.opcode}`,
+        err.message,
+        () => {
+          // This is the 'onOpenFile' logic triggered by a click
+          if (b.path) {
+            // Use regex or stack trace parser to find the exact line if desired
+            openInEditor(b.path, 1, 1); 
+          }
+        }
+      );
+    });
+    console.error(err);
+    return undefined;
+  }
+}
+
+      // Standard production execution
       return b.module.def(args);
     }
     return undefined;
