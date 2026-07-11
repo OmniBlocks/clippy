@@ -1,71 +1,96 @@
-  import esbuild from "esbuild";
-  import { findProjectPath, parseScratch } from "./parse-scratch.js";
-  import { logZodError } from "./format-zod-error.js";
-  import path from "node:path";
-  import fg from "fast-glob";
-  import { wrapIIFEPlugin } from "./wrap-iife-plugin.js";
-  import { clippyPlugin } from "./clippy-plugin.js";
-  import progressPlugin from "esbuild-plugin-progress"; 
+import { rolldown } from "rolldown";
+import { findProjectPath, parseScratch } from "./parse-scratch.js";
+import { logZodError } from "./format-zod-error.js";
+import path from "node:path";
+import fg from "fast-glob";
+import { clippyPlugin } from "./clippy-plugin.js";
 
-  export const build = async ({
-    minify,
-    target,
-    mod,
-    verbose,
-    develop,
-    esbuildOptions,
-    consolaInstance,
-  }) => {
-    const consola = consolaInstance;
+/**
+ * Main Build Function
+ */
+export const build = async ({
+  minify,
+  target,
+  mod,
+  verbose,
+  develop,
+  rolldownOptions,
+  consolaInstance,
+}) => {
+  const consola = consolaInstance;
 
+  try {
+    const projectPath = findProjectPath();
+    consola.debug(`Found project at ${projectPath}`);
+
+    let config;
     try {
-      const projectPath = findProjectPath();
-      consola.debug(`Found Scratch config at ${projectPath}`);
-
-      const config = parseScratch();
-      consola.debug(config);
-
-      const blocksDir = path.join(projectPath, "src/blocks");
-      const blockFiles = await fg("*.js", { cwd: blocksDir, absolute: true });
-      if (blockFiles.length === 0) consola.warn("No blocks found in src/blocks!");
-
-      const menusDir = path.join(projectPath, "src/menus");
-      const menuFiles = await fg("*.js", { cwd: menusDir, absolute: true });
-
-      const enableProgress = !process.env.CI && !verbose;
-
-      const context = await esbuild.context({
-        entryPoints: ['$/scratch'],
-        bundle: true,
-        format: "iife",
-        minifyIdentifiers: false,
-        minifySyntax: minify,
-        minifyWhitespace: minify,
-        treeShaking: !develop,
-        sourcesContent: false,
-        legalComments: "inline",
-        sourcemap: develop ? "inline" : false,
-        logLevel: verbose ? 'verbose' : 'silent',
-        target: target || "esnext",
-        keepNames: true,
-        plugins: [
-          clippyPlugin(config, blockFiles, menuFiles, develop, mod),
-          wrapIIFEPlugin("Scratch"),
-          ...enableProgress ? [progressPlugin()] : []
-        ],
-        define: {
-          isDevelop: String(Boolean(develop)),
-          target: JSON.stringify(mod)
-        },
-        ...esbuildOptions,
-        write: false,
-      });
-
-      return context;
-
+    config = parseScratch();
     } catch (err) {
-      logZodError(consola, err, { verbose });
-      process.exitCode = 1;
-      return null;
+      if (err.name === "ZodError") {
+        logZodError(consola, err, { verbose });
+        process.exit(1);
+      }
+      throw err;
     }
-  };
+    
+    // Resolve block and menu files
+    const resolveFiles = (dir) => fg("*.js", { 
+      cwd: path.join(projectPath, dir), 
+      absolute: true 
+    });
+    
+    const [blockFiles, menuFiles, hiddenBlocks] = await Promise.all([
+      resolveFiles("src/blocks"),
+      resolveFiles("src/menus"),
+      resolveFiles("src/blocks/hidden")
+    ]);
+
+    if (blockFiles.length === 0) {
+      consola.warn("No blocks found in src/blocks!");
+    }
+
+    // 1. Input Options
+    const inputOptions = {
+      input: '$/clippybuilder/extension-template.js',
+      platform: 'browser',
+      // 'define' performs global text replacement
+      plugins: [
+        clippyPlugin(config, blockFiles, menuFiles, hiddenBlocks, develop, mod),
+      ],
+      // Standard Rolldown/Rollup behavior
+      treeshake: !develop,
+      ...rolldownOptions,
+    };
+
+    // 2. Initial Bundle Creation
+    const bundle = await rolldown(inputOptions);
+
+    /**
+     * Rebuild Logic
+     * Generates a fresh bundle output in memory.
+     */
+    const generateOutput = async () => {
+      return await bundle.generate({
+        format: 'iife',
+        name: 'Clippy',            // The global variable for the extension
+        codeSplitting: false, // Forces devtools into the main bundle
+        minify: minify,
+        sourcemap: develop ? "inline" : false,
+        // Keeps function names readable for the "human" look
+        keepNames: true, 
+      });
+    };
+
+    // Return the control object to the dev server
+    return {
+      rebuild: generateOutput,
+      dispose: async () => await bundle.close(),
+    };
+
+  } catch (err) {
+    logZodError(consola, err, { verbose });
+    process.exitCode = 1;
+    return null;
+  }
+};

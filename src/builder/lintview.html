@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lint Dashboard</title>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --sidebar-bg: #ffffff;
+            --primary: #ff4c4c;
+            --text: #2c3e50;
+            --border: #e1e8ed;
+            --error: #ff4c4c;
+            --warning: #f39c12;
+        }
+
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; height: 100vh; color: var(--text); background-color: var(--bg); }
+
+        #sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-weight: bold; border-bottom: 1px solid var(--border); }
+
+        /* File List */
+        #file-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .file-item { padding: 15px 20px; border-bottom: 1px solid var(--border); font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .file-item:hover { background: #f8f9fa; color: var(--primary); }
+        .file-item.active { background: #eef6ff; border-left: 4px solid var(--primary); }
+
+        /* Viewer */
+        #viewer { flex: 1; padding: 40px; overflow-y: auto; }
+        .error-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid transparent; cursor: pointer; }
+        .severity-2 { border-left-color: var(--error); }
+        .severity-1 { border-left-color: var(--warning); }
+        
+        header { display: flex; align-items: center; padding: 0 20px; height: 60px; background: white; border-bottom: 1px solid var(--border); }
+        button { border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; background: #e9ecef; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">Lint Results</div>
+        <ul id="file-list">
+            <li class="file-item active" onclick="renderAllFiles()">All Files</li>
+        </ul>
+    </nav>
+
+    <main style="flex: 1; display: flex; flex-direction: column;">
+        <header>
+            <button id="back-btn" style="margin-right: 15px;">← Back</button>
+            <h3 id="file-title" style="margin:0;">All Files</h3>
+        </header>
+        <section id="viewer">
+            <div id="code-display"></div>
+        </section>
+    </main>
+
+    <script>
+        let lintData = [];
+        window.parent.postMessage({ type: 'lint_ui_ready' }, '*');
+
+        async function loadLintData() {
+            try {
+                const response = await fetch('http://localhost:8000/lint-results');
+                lintData = await response.json();
+                renderSidebar();
+            } catch (err) {
+                document.getElementById('code-display').textContent = 'Error loading data.';
+            }
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('file-list');
+            lintData.forEach((file) => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.textContent = file.filePath.split('/').pop();
+                li.onclick = () => {
+                    document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
+                    li.classList.add('active');
+                    renderFileViewer(file);
+                };
+                list.appendChild(li);
+            });
+        }
+
+        function renderAllFiles() {
+            document.getElementById('file-title').textContent = "All Files";
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
+            document.querySelector('.file-item').classList.add('active');
+            
+            const display = document.getElementById('code-display');
+            display.innerHTML = '';
+            lintData.forEach(file => {
+                file.messages.forEach(msg => {
+                    display.appendChild(createErrorCard(file.filePath, msg));
+                });
+            });
+        }
+
+        function createErrorCard(filePath, msg) {
+            const div = document.createElement('div');
+            div.className = `error-card severity-${msg.severity}`;
+            div.innerHTML = `<strong>${filePath.split('/').pop()}</strong><br>
+                             L${msg.line}:${msg.column} - ${msg.message}<br>
+                             <small style="color:#666">${msg.ruleId}</small>`;
+            div.onclick = () => window.parent.postMessage({ type: 'open_editor', file: filePath, line: msg.line, column: msg.column }, '*');
+            return div;
+        }
+
+        function renderFileViewer(file) {
+            document.getElementById('file-title').textContent = file.filePath;
+            const display = document.getElementById('code-display');
+            display.innerHTML = '';
+            file.messages.forEach(msg => {
+                display.appendChild(createErrorCard(file.filePath, msg));
+            });
+        }
+
+        document.getElementById('back-btn').onclick = () => window.parent.postMessage({ type: 'close_lint_modal' }, '*');
+        loadLintData();
+    </script>
+</body>
+</html>

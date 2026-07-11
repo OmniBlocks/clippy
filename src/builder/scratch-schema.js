@@ -17,5 +17,6 @@ export const scratchSchema = z.object({
   expose: z.boolean().optional().default(false),
   sandboxAllowed: z.boolean().optional().default(false),
   docsURI: z.url().optional(),
-  esbuildConfig: z.object().optional()
+  rolldownConfig: z.object().optional(),
+  esbuildConfig: z.never('esbuildConfig is deprecated, use rolldownConfig instead').optional()
 })

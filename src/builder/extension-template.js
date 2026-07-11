@@ -1,6 +1,11 @@
-import blockDefinitions from '$/blocks';
-import menuDefinitions from '$/menus';
-import config from '$/config';
+// This is converted into a functioning extension when built using index.js
+// it can NOT be ran raw due to it using the $ namespace
+
+import config, {isDevelop, target} from '$/config';
+import $$blockDefinitions from '$/blocks';
+import $$hiddenBlocks from '$/blocks/hidden';
+import $$menuDefinitions from '$/menus';
+import $$runtime from '$/runtime';
 
 if (!Scratch.extensions.unsandboxed && !config.sandboxAllowed) {
   throw new Error(`${config.name} must run unsandboxed`);
@@ -14,10 +19,11 @@ if (!Scratch.extensions?.isPenguinMod?.() && target === 'pm') {
   throw new Error(`${config.name} must run in PenguinMod`);
 }
 
+$$runtime.pre(Scratch)
+
 let viewLint = () => "not loaded?"
 if (isDevelop) {
-  console.log("Loading devtools.")
-  import('./devtools').then((module) => {
+  import('$/clippybuilder/devtools.js').then((module) => {
       const {dev, showLintingModal} = module;
       console.log(module)
       if (typeof dev === 'function') dev();
@@ -28,8 +34,9 @@ if (isDevelop) {
 /* @__PURE__ */
 class Extension {
   getInfo() {
-    let definedBlocks = blockDefinitions.map(b => ({
+    let definedBlocks = [...$$blockDefinitions, ...$$hiddenBlocks].map(b => ({
       opcode: b.opcode,
+      hideFromPalette: b.hiddenBlock,
       ...Object.fromEntries(
         Object.entries(b.module).filter(([k]) => k !== 'def')
       )
@@ -65,7 +72,7 @@ class Extension {
       color3: config?.colors?.[2] ?? undefined,
       blocks,
       menus: Object.fromEntries(
-        menuDefinitions.map(m => [m.opcode, m.module])
+        $$menuDefinitions.map(m => [m.opcode, m.module])
       )
     };
   }
@@ -76,34 +83,34 @@ class Extension {
 }
 
 // Attach each block’s function to the Extension prototype
-for (const b of blockDefinitions) {
+for (const b of [...$$blockDefinitions, ...$$hiddenBlocks]) {
   /* @__PURE__ */
   Extension.prototype[b.opcode] = function(args) {
     if (typeof b.module.def === 'function') {
       // If we are in development mode, wrap the block in a try/catch
-if (isDevelop) {
-  try {
-    return b.module.def(args);
-  } catch (err) {
-    import('./devtools').then(({ blockErrorModal, openInEditor }) => {
-      // Pass the file information to the modal
-      // Note: 'b.path' assumes your blockDefinitions include the source file path
-      blockErrorModal(
-        `Error in block: ${b.opcode}`,
-        err.message,
-        () => {
-          // This is the 'onOpenFile' logic triggered by a click
-          if (b.path) {
-            // Use regex or stack trace parser to find the exact line if desired
-            openInEditor(b.path, 1, 1); 
-          }
+      if (isDevelop) {
+        try {
+          return b.module.def(args);
+        } catch (err) {
+          import('$/clippybuilder/devtools.js').then(({ blockErrorModal, openInEditor }) => {
+            // Pass the file information to the modal
+            // Note: 'b.path' assumes your $$blockDefinitions include the source file path
+            blockErrorModal(
+              `Error in block: ${b.opcode}`,
+              err.message,
+              () => {
+                // This is the 'onOpenFile' logic triggered by a click
+                if (b.path) {
+                  // Use regex or stack trace parser to find the exact line if desired
+                  openInEditor(b.path, 1, 1); 
+                }
+              }
+            );
+          });
+          console.error(err);
+          return undefined;
         }
-      );
-    });
-    console.error(err);
-    return undefined;
-  }
-}
+      }
 
       // Standard production execution
       return b.module.def(args);
@@ -112,7 +119,8 @@ if (isDevelop) {
   };
 }
 
+$$runtime.post(Scratch)
 /* @__PURE__ */
 const extension = new Extension();
-if (config.expose) Scratch.vm.runtime[`ext_${config.id}`] = extension;
+if (config.expose) Scratch.vm.$$runtime[`ext_${config.id}`] = extension;
 Scratch.extensions.register(extension);

@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "child_process";
-import readline from "node:readline";
+import { input, select } from "@inquirer/prompts";
+import JSON5 from "json5";
 
 function detectPackageManagers() {
   const managers = ["npm", "yarn", "pnpm", "bun"];
@@ -12,22 +13,6 @@ function detectPackageManagers() {
     } catch {
       return false;
     }
-  });
-}
-
-function ask(question, defaultValue) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    const prompt = defaultValue ? `${question} (${defaultValue}): ` : `${question}: `;
-    rl.question(prompt, (answer) => {
-      rl.close();
-      if (!answer && defaultValue !== undefined) resolve(defaultValue);
-      else resolve(answer.trim());
-    });
   });
 }
 
@@ -43,32 +28,37 @@ function toCamelCase(str) {
     .join("");
 }
 
-
 export async function init() {
-  let format = await ask("Which format do you want to use for your configuration? [json/yaml]", "json");
-  format = format.toLowerCase();
-  if (!["json", "yaml"].includes(format)) format = "json";
+  // 1. Language Select
+  const language = await select({
+    message: "Choose a programming language. TypeScript is coming soon...",
+    choices: [
+      { name: "JavaScript", value: "js" },
+    ],
+  });
 
-  const name = await ask("Enter your extension's name", "My Extension");
+  // 2. Format Select (Defaulting to YAML)
+  const format = await select({
+    message: "Which format do you want to use for your configuration?",
+    choices: ["yaml", "json", "json5"],
+    default: "yaml",
+  });
 
-  const id = await ask("Enter your extension's ID", toCamelCase(name));
+  // 3. Inputs
+  const name = await input({ message: "Enter your extension's name:", default: "My Extension" });
+  const id = await input({ message: "Enter your extension's ID:", default: toCamelCase(name) });
 
-  let packageManager = null;
-  const missingPackageFiles = !fs.existsSync("package.json") || !fs.existsSync("node_modules");
-  if (missingPackageFiles) {
-    let availableManagers = detectPackageManagers();
-    if (availableManagers.length === 0) availableManagers.push("None");
-    else availableManagers.push("None");
-
-    console.log("No package.json or node_modules detected.");
-    console.log("Available package managers: ", availableManagers.join(", "));
-    while (!packageManager) {
-      const pm = await ask("Which package manager do you want to use?", "None");
-      if (availableManagers.includes(pm)) packageManager = pm;
-      else console.log("Invalid choice, please pick one from the list.");
-    }
+  // 4. Package Manager
+  let packageManager = "None";
+  if (!fs.existsSync("package.json") || !fs.existsSync("node_modules")) {
+    const managers = detectPackageManagers();
+    packageManager = await select({
+      message: "No package manager files detected. Choose one:",
+      choices: [...managers, "None"],
+    });
   }
 
+  // 5. File System Setup
   const srcDir = path.join(process.cwd(), "src");
   const blocksDir = path.join(srcDir, "blocks");
   const menusDir = path.join(srcDir, "menus");
@@ -76,17 +66,53 @@ export async function init() {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   });
 
+  // 6. Write Config (using selected format)
   const configFile = path.join(process.cwd(), `scratch.${format}`);
+  const configObj = { id, name };
+  
   if (format === "json") {
-    fs.writeFileSync(configFile, JSON.stringify({ id, name, galleryData: {} }, null, 2));
+    fs.writeFileSync(configFile, JSON.stringify(configObj, null, 2));
+  } else if (format === "json5") {
+    fs.writeFileSync(configFile, JSON5.stringify(configObj, null, 2));
   } else {
-    fs.writeFileSync(configFile, `id: ${id}\nname: ${name}\ngalleryData: {}\n`);
+    fs.writeFileSync(configFile, `id: ${id}\nname: ${name}\n`);
   }
+
+  // 7. Write Hello Sample Block
+  const sampleBlock = `export default {
+    title: "Hello!",
+    blockType: Scratch.BlockType.REPORTER,
+    def() {
+        return "World!";
+    }
+}`;
+  fs.writeFileSync(path.join(blocksDir, `hello.${language}`), sampleBlock);
+
+  // make a readme
+  const readmetext = `# Clippy
+A sample clippy extension.
+
+Check the [docs](https://ampelc.codeberg.page/clippy) to learn more. Get help on our [discussions page](https://github.com/OmniBlocks/clippy/discussions).
+
+To contribute, you need to install Clippy. To do this, see https://ampelc.codeberg.page/clippy/tutorial/`
+  fs.writeFileSync(path.join(process.cwd(), "README.md"), readmetext);
+
+  // make placeholder runtime.js file
+  const runtimejs = `export default {
+  // This is where you add pre and post functions.
+  // Simple extensions may not need pre and post, but for more complex extensions,
+  // it allows you to interact with the Scratch VM to add events, etc.
+  // Check docs for more info: https://ampelc.codeberg.page/clippy/
+  pre(Scratch) {
+    // Pre runs before your extension is registered to the VM.
+  },
+  post(Scratch) {
+    // Post runs after your extension is registered to the VM.
+  },
+};`
+  fs.writeFileSync(path.join(srcDir, "runtime.js"), runtimejs);
 
   console.log("\n✅ Extension scaffold created successfully!");
   console.log(`- Config file: ${configFile}`);
-  console.log(`- Source directories: ${srcDir}/blocks and ${srcDir}/menus`);
-  if (packageManager && packageManager !== "None") {
-    console.log(`You can now install dependencies using: ${packageManager}`);
-  }
+  console.log(`- Sample block: ${blocksDir}/hello.${language}`);
 }

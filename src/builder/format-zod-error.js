@@ -11,7 +11,7 @@ export function logZodError(consola, err, { verbose } = {}) {
     return;
   }
 
-  consola.error("Invalid configuration:");
+  consola.error("Invalid Clippy configuration.");
 
   for (const issue of err.issues) {
     const path =

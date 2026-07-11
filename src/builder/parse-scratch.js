@@ -3,6 +3,7 @@ import path from "path";
 import yaml from "js-yaml";
 import JSON5 from "json5";
 import { scratchSchema } from "./scratch-schema.js";
+import { logZodError } from "./format-zod-error.js";
 
 const SCRATCH_FILES = [
   "scratch.yaml",
@@ -66,4 +67,5 @@ export function parseScratch() {
   }
 
   return scratchSchema.parse(data);
+
 }

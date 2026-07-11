@@ -1,6 +1,27 @@
 # Clippy
 
-Clippy is a tool for building TurboWarp extensions. The name comes from an inside joke in the AmpMod community.
+> *"The vite of custom blocks"*
+> -Office Assistant
+
+Clippy is a tool for building TurboWarp extensions.
+
+Clippy is very easy to use. All you have to do is run `clippy init`, and you're ready to start coding your blocks in JavaScript!
+
+If you are more experienced with TurboWarp extensions, you can use `src/runtime.js` to add custom code that runs before and after registering your extension, this lets you add event handlers to the Scratch VM.
+
+For more info, visit: https://ampelc.codeberg.page/clippy
+
+## Etymology
+The name comes from an inside joke in the AmpMod community, where on April Fools, Clippy would show at the bottom right of the editor, suggesting completely random features or saying outright weird things.
+
+The joke began in April 2025, and has returned every year since.
+
+We won't get much into that, but there is [an article](https://ampmod.miraheze.org/wiki/April_Fools#Clippy) about it on their wiki.
+
+## How Clippy works
+Clippy has 2 modes:
+* Dev mode: This mode gives you a dev server that currently reloads the entire page when you make changes to an extension. It also adds some dev extras. This is not intended for distributing your extension to galleries.
+* Build mode: This 
 
 ## FAQ
 
@@ -10,7 +31,12 @@ We do not consider Clippy to be an assistive tool in the way things such as Turb
 
 Note that Clippy is currently unsuitable for publishing your extension to TurboWarp.
 
-### todo
+### Todo
+
+* [ ] TypeScript support
+* [ ] Better eslint integration. Our current one is simply using eslint as a wrapper instead of actually letting people run eslint themselves
+* [ ] Hot reloading
+* [x] Replace esbuild with Rolldown.
 
 ## License
 

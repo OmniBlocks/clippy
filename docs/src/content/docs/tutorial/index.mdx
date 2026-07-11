@@ -1,0 +1,99 @@
+---
+title: Getting started with Clippy
+description: How to make your first extension.
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+
+This is a tutorial on how to create a TurboWarp extension with Clippy. Specifically, we will create a replica
+of a few example extensions from the [TurboWarp docs](https://docs.turbowarp.org/development/extensions).
+
+Note: we recommend you learn how to make small, monolithic extensions before using Clippy. It will help you
+understand how the system works.
+
+<Aside>
+If you want to create an extension from nothing but a "Hello World" template, see
+[the template](https://codeberg.org/actd/clippy-template). If you want to learn Clippy to gain a better understanding,
+read on.
+</Aside>
+
+## Install Clippy CLI
+
+To install the Clippy CLI, run:
+
+<Tabs>
+  <TabItem label="npm">
+   ```
+   npm install -D @ampmod/clippy@git+https://codeberg.org/actd/clippy.git
+   ```
+   If you want to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more annoying for
+   contributors who didn't install Clippy before, and it can also bloat your system.
+  </TabItem>
+  <TabItem label="pnpm">
+   ```
+   pnpm add -D @ampmod/clippy@git+https://codeberg.org/actd/clippy.git
+   ```
+   If you want to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more annoying for
+   contributors who didn't install Clippy before, and it can also bloat your system.
+  </TabItem>
+  <TabItem label="yarn">
+   <Aside type="caution">
+   PnP support is not tested.
+   </Aside>
+   ```
+   yarn add -D @ampmod/clippy@git+https://codeberg.org/actd/clippy.git
+   ```
+   If you want to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more annoying for
+   contributors who didn't install Clippy before, and it can also bloat your system.
+  </TabItem>
+  <TabItem label="Bun">
+   ```
+   bun add -d @ampmod/clippy@git+https://codeberg.org/actd/clippy.git
+   ```
+   If you want to install the Clippy CLI on all projects, change `-d` to `-g` - note this may make it more annoying for
+   contributors who didn't install Clippy before, and it can also bloat your system.
+  </TabItem>
+</Tabs>
+
+To verify that Clippy was installed, run `clippy help`. If you see a list of commands, it's working. If not, search up
+how to add your package manager's binaries to your PATH.
+
+## Structure
+
+To assist Clippy in collecting block declarations and generating your extension, your repository must look like this:
+
+<FileTree>
+- scratch.yaml or scratch.json / scratch.json5
+- src
+    - blocks
+        - ... soon, we will add [hello.js](/clippy/tutorial/hello-world)
+    - menus discussed [later](/clippy/tutorial/menus)
+        - ...
+</FileTree>
+
+Clipy does not care if you have additional folders or files. In fact, this can be useful for cases where you want to
+reuse logic multiple times.
+
+## Extension configuration
+
+This file includes your extension's ID, name and other information. For now, we only need an ID and name:
+
+<Tabs>
+  <TabItem label="scratch.yaml">
+   ```yaml
+   id: myExtension
+   name: My Extension
+   ```
+  </TabItem>
+  <TabItem label="scratch.json / scratch.json5">
+  <Aside>JSON5 allows trailing commas, single quotes and unquoted key names; JSON does not. JSON5 is better for humans, while JSON is good if your extensions are automatically generated.</Aside>
+   ```json5
+   {
+    "id": "myExtension",
+    "name": "My Extension"
+   }
+   ```
+  </TabItem>
+</Tabs>
