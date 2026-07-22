@@ -4,11 +4,12 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://omniblocks.github.io',
 	base: '/clippy',
 	integrations: [
 		starlight({
 			title: 'Clippy',
-			social: [{ icon: 'codeberg', label: 'Codeberg', href: 'https://codeberg.org/actd/clippy' }],
+			social: [{ icon: 'github', label: 'Github', href: 'https://github.com/OmniBlocks/clippy' }],
 			sidebar: [
 				{
 					label: 'Getting Started',
@@ -17,10 +18,6 @@ export default defineConfig({
 						{ label: 'Intro', slug: 'tutorial' },
 						{ label: 'Hello, world!', slug: 'tutorial/hello-world' },
 					],
-				},
-				{
-					label: 'Reference',
-					autogenerate: { directory: 'reference' },
 				},
 			],
 		}),
