@@ -3,3 +3,7 @@ packages:
   - docs
 
 ignoreWorkspaceRootCheck: true
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
