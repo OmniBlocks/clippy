@@ -9,7 +9,7 @@ Clippy is very easy to use. All you have to do is run `clippy init`, and you're 
 
 If you are more experienced with TurboWarp extensions, you can use `src/runtime.js` to add custom code that runs before and after registering your extension, this lets you add event handlers to the Scratch VM.
 
-For more info, visit: https://ampelc.codeberg.page/clippy
+For more info, visit: https://omniblocks.github.io/clippy
 
 ## Etymology
 The name comes from an inside joke in the AmpMod community, where on April Fools, Clippy would show at the bottom right of the editor, suggesting completely random features or saying outright weird things.
