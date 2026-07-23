@@ -30,7 +30,7 @@
     "json5": "^2.2.3",
     "launch-editor": "^2.13.2",
     "reconnecting-websocket": "^4.4.0",
-    "rolldown": "1.0.0-rc.15",
+    "rolldown": "1.2.0",
     "ws": "^8.18.3",
     "yargs": "^18.0.0",
     "zod": "^4.2.1"
