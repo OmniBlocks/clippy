@@ -13,7 +13,10 @@
   "keywords": [],
   "author": "8to16",
   "license": "MPL-2.0",
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@11.16.0",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
     "chokidar": "^5.0.0",
