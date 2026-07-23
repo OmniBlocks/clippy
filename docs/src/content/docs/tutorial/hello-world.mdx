@@ -2,8 +2,8 @@
 title: Hello, world!
 ---
 
-import { Code } from "@astrojs/starlight/components";
-import { Aside } from "@astrojs/starlight/components";
+import { Code } from '@astrojs/starlight/components'
+import { Aside } from '@astrojs/starlight/components'
 
 We will create our first block: a simple "Hello!" block that will return the string "World!"
 
@@ -16,12 +16,12 @@ Create a file called `src/blocks/hello.js` with this code:
 
 ```js
 export default {
-  title: "Hello!",
+  title: 'Hello!',
   blockType: Scratch.BlockType.REPORTER,
   def() {
-    return "World!";
+    return 'World!'
   },
-};
+}
 ```
 
 <Aside type="danger">
