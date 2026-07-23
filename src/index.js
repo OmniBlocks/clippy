@@ -13,6 +13,8 @@ import { createConsola } from 'consola';
 let consolaInstance;
 
 yargs(hideBin(process.argv))
+  .scriptName('clippy')
+  
   .middleware(argv => {
     consolaInstance = createConsola({ level: argv.verbose ? 999 : 3, formatOptions: { date: false } });
   })
