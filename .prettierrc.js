@@ -1,24 +1,16 @@
 /** @type {import("prettier").Config} */
-module.exports = {
-  // Indentation
+
+export default {
   tabWidth: 2,
   useTabs: false,
-
-  // Semicolons and quotes
   semi: false,
   singleQuote: true,
   quoteProps: 'as-needed',
-
-  // Trailing commas
   trailingComma: 'all',
   bracketSpacing: true,
   arrowParens: 'always',
-
-  // Line endings
   endOfLine: 'lf',
   printWidth: 100,
-
-  // File-specific overrides
   overrides: [
     {
       files: '*.md',

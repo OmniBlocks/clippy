@@ -2,8 +2,8 @@
 title: Hello, world!
 ---
 
-import { Code } from '@astrojs/starlight/components';
-import { Aside } from '@astrojs/starlight/components';
+import { Code } from '@astrojs/starlight/components'
+import { Aside } from '@astrojs/starlight/components'
 
 We will create our first block: a simple "Hello!" block that will return the string "World!"
 
@@ -16,11 +16,11 @@ Create a file called `src/blocks/hello.js` with this code:
 
 ```js
 export default {
-    title: "Hello!",
-    blockType: Scratch.BlockType.REPORTER,
-    def() {
-        return "World!";
-    }
+  title: 'Hello!',
+  blockType: Scratch.BlockType.REPORTER,
+  def() {
+    return 'World!'
+  },
 }
 ```
 
@@ -30,6 +30,7 @@ Clippy uses your block's filename as the block opcode. As a result, if you renam
 projects.
 
 If you want to remove a block, move it to `src/blocks/hidden` - it will still exist but will not show in the block palette.
+
 </Aside>
 
 We recommend snake_case or camelCase for all block filenames.
@@ -42,7 +43,7 @@ Run `clippy dev` and go to http://localhost:8000 to open the TurboWarp editor wi
 <Aside>
 If you want your extension to target another Scratch Mod such as [AmpMod](https://ampmod.codeberg.page), specify `-m [mod ID]`:
 
-* `tw`: TurboWarp (this is the default)
-* `amp`: AmpMod
-* `pm`
-</Aside>
+- `tw`: TurboWarp (this is the default)
+- `amp`: AmpMod
+- `pm`
+  </Aside>

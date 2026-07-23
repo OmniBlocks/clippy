@@ -3,9 +3,9 @@ title: Getting started with Clippy
 description: How to make your first extension.
 ---
 
-import { FileTree } from '@astrojs/starlight/components';
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-import { Aside } from '@astrojs/starlight/components';
+import { FileTree } from '@astrojs/starlight/components'
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+import { Aside } from '@astrojs/starlight/components'
 
 This is a tutorial on how to create a TurboWarp extension with Clippy. Specifically, we will create a replica
 of a few example extensions from the [TurboWarp docs](https://docs.turbowarp.org/development/extensions).
@@ -19,35 +19,25 @@ To install the Clippy CLI, run:
 
 <Tabs>
   <TabItem label="npm">
-   ```
-   npm install -D @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy
-   ```
-   If you want to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more annoying for
-   contributors who didn't install Clippy before, and it can also bloat your system.
+    ``` npm install -D @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy ``` If you want
+    to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more
+    annoying for contributors who didn't install Clippy before, and it can also bloat your system.
   </TabItem>
   <TabItem label="pnpm">
-   ```
-   pnpm add -D @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy
-   ```
-   If you want to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more annoying for
-   contributors who didn't install Clippy before, and it can also bloat your system.
+    ``` pnpm add -D @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy ``` If you want to
+    install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more
+    annoying for contributors who didn't install Clippy before, and it can also bloat your system.
   </TabItem>
   <TabItem label="yarn">
-   <Aside type="caution">
-   PnP support is not tested.
-   </Aside>
-   ```
-   yarn add -D @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy
-   ```
-   If you want to install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more annoying for
-   contributors who didn't install Clippy before, and it can also bloat your system.
+    <Aside type="caution">PnP support is not tested.</Aside>
+    ``` yarn add -D @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy ``` If you want to
+    install the Clippy CLI on all projects, change `-D` to `-g` - note this may make it more
+    annoying for contributors who didn't install Clippy before, and it can also bloat your system.
   </TabItem>
   <TabItem label="Bun">
-   ```
-   bun add -d @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy
-   ```
-   If you want to install the Clippy CLI on all projects, change `-d` to `-g` - note this may make it more annoying for
-   contributors who didn't install Clippy before, and it can also bloat your system.
+    ``` bun add -d @omniblocks/clippy@git+https://github.com/OmniBlocks/clippy ``` If you want to
+    install the Clippy CLI on all projects, change `-d` to `-g` - note this may make it more
+    annoying for contributors who didn't install Clippy before, and it can also bloat your system.
   </TabItem>
 </Tabs>
 
@@ -59,12 +49,8 @@ how to add your package manager's binaries to your PATH.
 To assist Clippy in collecting block declarations and generating your extension, your repository must look like this:
 
 <FileTree>
-- scratch.yaml or scratch.json / scratch.json5
-- src
-    - blocks
-        - ... soon, we will add [hello.js](/clippy/tutorial/hello-world)
-    - menus discussed [later](/clippy/tutorial/menus)
-        - ...
+  - scratch.yaml or scratch.json / scratch.json5 - src - blocks - ... soon, we will add
+  [hello.js](/clippy/tutorial/hello-world) - menus discussed [later](/clippy/tutorial/menus) - ...
 </FileTree>
 
 Clipy does not care if you have additional folders or files. In fact, this can be useful for cases where you want to
