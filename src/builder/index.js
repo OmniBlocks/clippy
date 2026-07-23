@@ -25,7 +25,7 @@ export const build = async ({
 
     let config;
     try {
-    config = parseScratch();
+      config = parseScratch();
     } catch (err) {
       if (err.name === "ZodError") {
         logZodError(consola, err, { verbose });
@@ -33,17 +33,18 @@ export const build = async ({
       }
       throw err;
     }
-    
+
     // Resolve block and menu files
-    const resolveFiles = (dir) => fg("*.js", { 
-      cwd: path.join(projectPath, dir), 
-      absolute: true 
-    });
-    
+    const resolveFiles = (dir) =>
+      fg("*.js", {
+        cwd: path.join(projectPath, dir),
+        absolute: true,
+      });
+
     const [blockFiles, menuFiles, hiddenBlocks] = await Promise.all([
       resolveFiles("src/blocks"),
       resolveFiles("src/menus"),
-      resolveFiles("src/blocks/hidden")
+      resolveFiles("src/blocks/hidden"),
     ]);
 
     if (blockFiles.length === 0) {
@@ -52,8 +53,8 @@ export const build = async ({
 
     // 1. Input Options
     const inputOptions = {
-      input: '$/clippybuilder/extension-template.js',
-      platform: 'browser',
+      input: "$/clippybuilder/extension-template.js",
+      platform: "browser",
       // 'define' performs global text replacement
       plugins: [
         clippyPlugin(config, blockFiles, menuFiles, hiddenBlocks, develop, mod),
@@ -72,13 +73,13 @@ export const build = async ({
      */
     const generateOutput = async () => {
       return await bundle.generate({
-        format: 'iife',
-        name: 'Clippy',            // The global variable for the extension
+        format: "iife",
+        name: "Clippy", // The global variable for the extension
         codeSplitting: false, // Forces devtools into the main bundle
         minify: minify,
         sourcemap: develop ? "inline" : false,
         // Keeps function names readable for the "human" look
-        keepNames: true, 
+        keepNames: true,
       });
     };
 
@@ -87,7 +88,6 @@ export const build = async ({
       rebuild: generateOutput,
       dispose: async () => await bundle.close(),
     };
-
   } catch (err) {
     logZodError(consola, err, { verbose });
     process.exitCode = 1;

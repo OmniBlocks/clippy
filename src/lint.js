@@ -4,7 +4,11 @@ import fg from "fast-glob";
 import { ESLint } from "eslint";
 import { createConsola } from "consola";
 
-export async function lintExtensionFiles({ develop = false, verbose = false, fix = false } = {}) {
+export async function lintExtensionFiles({
+  develop = false,
+  verbose = false,
+  fix = false,
+} = {}) {
   const consola = createConsola({ level: verbose ? 999 : 3 });
 
   try {
@@ -12,8 +16,11 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
     parseScratch();
 
     const filesToLint = await fg(
-      [path.join(projectPath, "src/blocks/*.js"), path.join(projectPath, "src/menus/*.js")],
-      { absolute: true }
+      [
+        path.join(projectPath, "src/blocks/*.js"),
+        path.join(projectPath, "src/menus/*.js"),
+      ],
+      { absolute: true },
     );
 
     if (filesToLint.length === 0 && !develop) {
@@ -31,16 +38,19 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
             import: (await import("eslint-plugin-import")).default,
             clippy: {
               rules: {
-                "opcode": {
+                opcode: {
                   meta: { type: "problem" },
                   create(context) {
                     function checkObject(node, obj) {
                       if (!obj || obj.type !== "ObjectExpression") return;
-                      const hasOpcode = obj.properties.some(p => p.key?.name === "opcode");
+                      const hasOpcode = obj.properties.some(
+                        (p) => p.key?.name === "opcode",
+                      );
                       if (hasOpcode) {
                         context.report({
                           node,
-                          message: 'Do not define opcode; instead, set the opcode using the block\'s filename.',
+                          message:
+                            "Do not define opcode; instead, set the opcode using the block's filename.",
                         });
                       }
                     }
@@ -61,11 +71,13 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
                   create(context) {
                     function checkObject(node, obj) {
                       if (!obj || obj.type !== "ObjectExpression") return;
-                      const hasDef = obj.properties.some(p => p.key?.name === "def");
+                      const hasDef = obj.properties.some(
+                        (p) => p.key?.name === "def",
+                      );
                       if (!hasDef) {
                         context.report({
                           node,
-                          message: 'Block definition is missing.',
+                          message: "Block definition is missing.",
                         });
                       }
                     }
@@ -94,25 +106,41 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
             },
           },
           rules: {
-            "no-restricted-imports": ["error", {
-              patterns: [{
-                group: ["$/*", "!$/config"],
-                message: "Internal modules should never be imported in userland"
-              }]
-            }],
+            "no-restricted-imports": [
+              "error",
+              {
+                patterns: [
+                  {
+                    group: ["$/*", "!$/config"],
+                    message:
+                      "Internal modules should never be imported in userland",
+                  },
+                ],
+              },
+            ],
             "no-undef": "off",
             "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
             "no-debugger": develop ? "warn" : "error",
-            "indent": "off",
-            "quotes": "off",
-            "semi": "off",
+            indent: "off",
+            quotes: "off",
+            semi: "off",
             "import/no-commonjs": "error",
             "import/no-amd": "error",
             "import/no-duplicates": "error",
-            "import/order": ["warn", {
-              groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
-              "newlines-between": "always",
-            }],
+            "import/order": [
+              "warn",
+              {
+                groups: [
+                  "builtin",
+                  "external",
+                  "internal",
+                  "parent",
+                  "sibling",
+                  "index",
+                ],
+                "newlines-between": "always",
+              },
+            ],
             "import/named": "error",
             "import/namespace": "error",
             "import/no-unresolved": "error",
@@ -125,16 +153,22 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
             "no-async-promise-executor": "error",
             "no-await-in-loop": "warn",
             "require-atomic-updates": "warn",
-            "no-implicit-coercion": ["warn", { boolean: false, string: true, number: true }],
-            "radix": "error",
-            "no-mixed-operators": ["warn", {
-              groups: [
-                ["&&", "||"],
-                ["&", "|", "^"],
-                ["==", "!=", "===", "!=="],
-                ["+", "-", "*", "/", "%", "**"],
-              ],
-            }],
+            "no-implicit-coercion": [
+              "warn",
+              { boolean: false, string: true, number: true },
+            ],
+            radix: "error",
+            "no-mixed-operators": [
+              "warn",
+              {
+                groups: [
+                  ["&&", "||"],
+                  ["&", "|", "^"],
+                  ["==", "!=", "===", "!=="],
+                  ["+", "-", "*", "/", "%", "**"],
+                ],
+              },
+            ],
             "no-loop-func": "error",
             "no-caller": "warn",
             "no-new-func": "warn",
@@ -146,7 +180,10 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
             "default-case": "warn",
             "no-self-compare": "error",
             "no-unmodified-loop-condition": "error",
-            "no-unused-expressions": ["error", { allowShortCircuit: true, allowTernary: true }],
+            "no-unused-expressions": [
+              "error",
+              { allowShortCircuit: true, allowTernary: true },
+            ],
 
             "clippy/opcode": "error",
             "clippy/no-def": "error",
@@ -157,7 +194,7 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
           rules: {
             "import/no-unused-modules": ["error", { missingExports: true }],
           },
-        }
+        },
       ],
     });
 

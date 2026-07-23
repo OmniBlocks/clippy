@@ -17,7 +17,7 @@ export function logZodError(consola, err, { verbose } = {}) {
     const path =
       issue.path.length > 0
         ? issue.path
-            .map(p => (typeof p === "number" ? `[${p}]` : p))
+            .map((p) => (typeof p === "number" ? `[${p}]` : p))
             .join(".")
             .replace(".[", "[")
         : "(root)";

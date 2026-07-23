@@ -23,7 +23,7 @@ function toCamelCase(str) {
     .map((word, i) =>
       i === 0
         ? word.toLowerCase()
-        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
     )
     .join("");
 }
@@ -32,9 +32,7 @@ export async function init() {
   // 1. Language Select
   const language = await select({
     message: "Choose a programming language. TypeScript is coming soon...",
-    choices: [
-      { name: "JavaScript", value: "js" },
-    ],
+    choices: [{ name: "JavaScript", value: "js" }],
   });
 
   // 2. Format Select (Defaulting to YAML)
@@ -45,8 +43,14 @@ export async function init() {
   });
 
   // 3. Inputs
-  const name = await input({ message: "Enter your extension's name:", default: "My Extension" });
-  const id = await input({ message: "Enter your extension's ID:", default: toCamelCase(name) });
+  const name = await input({
+    message: "Enter your extension's name:",
+    default: "My Extension",
+  });
+  const id = await input({
+    message: "Enter your extension's ID:",
+    default: toCamelCase(name),
+  });
 
   // 4. Package Manager
   let packageManager = "None";
@@ -69,7 +73,7 @@ export async function init() {
   // 6. Write Config (using selected format)
   const configFile = path.join(process.cwd(), `scratch.${format}`);
   const configObj = { id, name };
-  
+
   if (format === "json") {
     fs.writeFileSync(configFile, JSON.stringify(configObj, null, 2));
   } else if (format === "json5") {
@@ -94,7 +98,7 @@ A sample clippy extension.
 
 Check the [docs](https://ampelc.codeberg.page/clippy) to learn more. Get help on our [discussions page](https://github.com/OmniBlocks/clippy/discussions).
 
-To contribute, you need to install Clippy. To do this, see https://ampelc.codeberg.page/clippy/tutorial/`
+To contribute, you need to install Clippy. To do this, see https://ampelc.codeberg.page/clippy/tutorial/`;
   fs.writeFileSync(path.join(process.cwd(), "README.md"), readmetext);
 
   // make placeholder runtime.js file
@@ -109,7 +113,7 @@ To contribute, you need to install Clippy. To do this, see https://ampelc.codebe
   post(Scratch) {
     // Post runs after your extension is registered to the VM.
   },
-};`
+};`;
   fs.writeFileSync(path.join(srcDir, "runtime.js"), runtimejs);
 
   console.log("\n✅ Extension scaffold created successfully!");

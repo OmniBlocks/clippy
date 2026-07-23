@@ -9,21 +9,21 @@ const SCRATCH_FILES = [
   "scratch.yaml",
   "scratch.yml",
   "scratch.json",
-  "scratch.json5"
+  "scratch.json5",
 ];
 
 export function findClosestScratchFile(startDir = process.cwd()) {
   let dir = startDir;
 
   while (true) {
-    const matches = SCRATCH_FILES
-      .map(name => path.join(dir, name))
-      .filter(file => fs.existsSync(file));
+    const matches = SCRATCH_FILES.map((name) => path.join(dir, name)).filter(
+      (file) => fs.existsSync(file),
+    );
 
     if (matches.length > 1) {
       throw new Error(
         `Must have only one scratch config file, found:\n` +
-        matches.map(f => `  - ${path.basename(f)}`).join("\n")
+          matches.map((f) => `  - ${path.basename(f)}`).join("\n"),
       );
     }
 
@@ -37,7 +37,7 @@ export function findClosestScratchFile(startDir = process.cwd()) {
   }
 
   throw new Error(
-    "Could not find scratch config (scratch.yaml, scratch.yml, scratch.json, scratch.json5)"
+    "Could not find scratch config (scratch.yaml, scratch.yml, scratch.json, scratch.json5)",
   );
 }
 
@@ -67,5 +67,4 @@ export function parseScratch() {
   }
 
   return scratchSchema.parse(data);
-
 }
