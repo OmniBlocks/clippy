@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import { cp } from 'node:fs/promises'
 import path from 'node:path'
 import { execSync } from 'child_process'
 import { input, select } from '@inquirer/prompts'
@@ -29,8 +30,11 @@ function toCamelCase(str) {
 export async function init() {
   // 1. Language Select
   const language = await select({
-    message: 'Choose a programming language. TypeScript is coming soon...',
-    choices: [{ name: 'JavaScript', value: 'js' }],
+    message: 'Choose a programming language.',
+    choices: [
+      { name: 'JavaScript', value: 'js' },
+      { name: 'TypeScript', value: 'ts' },
+    ],
   })
 
   // 2. Format Select (Defaulting to YAML)
@@ -64,7 +68,9 @@ export async function init() {
   const srcDir = path.join(process.cwd(), 'src')
   const blocksDir = path.join(srcDir, 'blocks')
   const menusDir = path.join(srcDir, 'menus')
-  ;[srcDir, blocksDir, menusDir].forEach((dir) => {
+  const typesDir = path.join(srcDir, 'types')
+
+  ;[srcDir, blocksDir, menusDir, typesDir].forEach((dir) => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
   })
 
@@ -88,7 +94,42 @@ export async function init() {
         return "World!";
     }
 }`
+
+  // tsconfig
+  const tsconfig = {
+    compilerOptions: {
+      target: 'ES2022',
+      module: 'ESNext',
+      moduleResolution: 'Bundler',
+      strict: true,
+      noEmit: true,
+    },
+    include: ['src/**/*.ts', 'src/**/*.d.ts'],
+  }
+
+  // jsconfig
+  const jsconfig = {
+    compilerOptions: {
+      target: 'ES2022',
+      module: 'ESNext',
+      moduleResolution: 'Bundler',
+      noEmit: true,
+      checkJs: false,
+    },
+    include: ['src/**/*.js', 'src/**/*.d.ts'],
+  }
+
   fs.writeFileSync(path.join(blocksDir, `hello.${language}`), sampleBlock)
+
+  const config = language === 'ts' ? tsconfig : jsconfig
+
+  fs.writeFileSync(
+    path.join(process.cwd(), `${language}config.json`),
+    JSON.stringify(config, null, 2),
+  )
+
+  // copy types
+  await cp(new URL('./types', import.meta.url), typesDir, { recursive: true })
 
   // make a readme
   const readmetext = `# Clippy
@@ -112,9 +153,10 @@ To contribute, you need to install Clippy. To do this, see https://ampelc.codebe
     // Post runs after your extension is registered to the VM.
   },
 };`
-  fs.writeFileSync(path.join(srcDir, 'runtime.js'), runtimejs)
+  fs.writeFileSync(path.join(srcDir, `runtime.${language}`), runtimejs)
 
   console.log('\n✅ Extension scaffold created successfully!')
   console.log(`- Config file: ${configFile}`)
   console.log(`- Sample block: ${blocksDir}/hello.${language}`)
 }
+;``
