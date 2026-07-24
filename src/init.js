@@ -141,18 +141,18 @@ To contribute, you need to install Clippy. To do this, see https://ampelc.codebe
   fs.writeFileSync(path.join(process.cwd(), 'README.md'), readmetext)
 
   // make placeholder runtime file
+  const scratchParam = language === 'ts' ? ': typeof Scratch' : ''
+
   const runtimejs = `export default {
   // This is where you add pre and post functions.
-  // Simple extensions may not need pre and post, but for more complex extensions,
-  // it allows you to interact with the Scratch VM to add events, etc.
-  // Check docs for more info: https://ampelc.codeberg.page/clippy/
-  pre(Scratch) {
+  pre(Scratch${scratchParam}) {
     // Pre runs before your extension is registered to the VM.
   },
-  post(Scratch) {
+  post(Scratch${scratchParam}) {
     // Post runs after your extension is registered to the VM.
   },
 };`
+
   fs.writeFileSync(path.join(srcDir, `runtime.${language}`), runtimejs)
 
   console.log('\n✅ Extension scaffold created successfully!')
