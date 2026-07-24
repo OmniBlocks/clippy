@@ -9,8 +9,8 @@ declare namespace ScratchRenderFonts {
     Marker = 'Marker',
     Curly = 'Curly',
     Pixel = 'Pixel',
-    Scratch = 'Scratch'
+    Scratch = 'Scratch',
   }
 }
 
-declare function ScratchRenderFonts(): Record<ScratchRenderFonts.Font, string>;
+declare function ScratchRenderFonts(): Record<ScratchRenderFonts.Font, string>

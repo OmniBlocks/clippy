@@ -6,40 +6,41 @@
 
 declare namespace RenderWebGL {
   // TW
-  type OverlayMode = 'scale' | 'scale-centered' | 'manual';
+  type OverlayMode = 'scale' | 'scale-centered' | 'manual'
   interface Overlay {
-    mode: OverlayMode;
-    container: HTMLElement;
-    userElement: HTMLElement;
+    mode: OverlayMode
+    container: HTMLElement
+    userElement: HTMLElement
   }
   interface TextBubbleStyle {
-    maxLineWidth: number;
-    minWidth: number;
-    strokeWidth: number;
-    padding: number;
-    cornerRadius: number;
-    tailHeight: number;
-    font: string;
-    fontSize: number;
-    fontHeightRatio: number;
-    lineHeight: number;
-    bubbleFill: string;
-    bubbleStroke: string;
-    textFill: string;
+    maxLineWidth: number
+    minWidth: number
+    strokeWidth: number
+    padding: number
+    cornerRadius: number
+    tailHeight: number
+    font: string
+    fontSize: number
+    fontHeightRatio: number
+    lineHeight: number
+    bubbleFill: string
+    bubbleStroke: string
+    textFill: string
   }
 
-  type AnyWebGLContext = WebGLRenderingContext | WebGL2RenderingContext;
+  type AnyWebGLContext = WebGLRenderingContext | WebGL2RenderingContext
 
-  type BitmapResolution = 1 | 2;
+  type BitmapResolution = 1 | 2
 
-  type BitmapData = ImageData | ImageBitmap | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement;
+  type BitmapData =
+    ImageData | ImageBitmap | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement
 
-  type LayerGroup = 'background' | 'video' | 'pen' | 'sprite' | string;
+  type LayerGroup = 'background' | 'video' | 'pen' | 'sprite' | string
 
   const enum UseGpuModes {
     Automatic = 'Automatic',
     ForceGPU = 'ForceGPU',
-    ForceCPU = 'ForceCPU'
+    ForceCPU = 'ForceCPU',
   }
 
   const enum Effect {
@@ -49,11 +50,11 @@ declare namespace RenderWebGL {
     Pixelate = 'pixelate',
     Mosaic = 'mosaic',
     Brightness = 'brightness',
-    Ghost = 'ghost'
+    Ghost = 'ghost',
   }
 
   // TODO: document bit masks
-  type EffectMask = number;
+  type EffectMask = number
 
   const enum DrawMode {
     Default = 'default',
@@ -61,36 +62,36 @@ declare namespace RenderWebGL {
     Silhouette = 'silhouette',
     ColorMask = 'colorMask',
     Line = 'line',
-    Background = 'background'
+    Background = 'background',
   }
 
   interface Rectangle {
-    left: number;
-    right: number;
-    bottom: number;
-    top: number;
-    width: number;
-    height: number;
-    intersects(other: Rectangle): boolean;
-    contains(other: Rectangle): boolean;
-    initFromBounds(left: number, right: number, bottom: number, top: number): void;
-    initFromPointsAABB(points: [number, number][]): void;
-    initFromModelMatrix(matrix4x4: number[]): void;
-    clamp(left: number, right: number, bottom: number, top: number): void;
-    snapToInt(): void;
+    left: number
+    right: number
+    bottom: number
+    top: number
+    width: number
+    height: number
+    intersects(other: Rectangle): boolean
+    contains(other: Rectangle): boolean
+    initFromBounds(left: number, right: number, bottom: number, top: number): void
+    initFromPointsAABB(points: [number, number][]): void
+    initFromModelMatrix(matrix4x4: number[]): void
+    clamp(left: number, right: number, bottom: number, top: number): void
+    snapToInt(): void
   }
 
   namespace Rectangle {
-    function intersect(a: Rectangle, b: Rectangle, result?: Rectangle): Rectangle;
-    function union(a: Rectangle, b: Rectangle, result?: Rectangle): Rectangle;
+    function intersect(a: Rectangle, b: Rectangle, result?: Rectangle): Rectangle
+    function union(a: Rectangle, b: Rectangle, result?: Rectangle): Rectangle
   }
 
   /**
    * Suggested properties of a drawing region. Strictly, this can really be whatever you want it to be.
    */
   interface DrawingRegion {
-    enter?(): void;
-    exit?(): void;
+    enter?(): void
+    exit?(): void
   }
 
   interface Shader {
@@ -98,112 +99,120 @@ declare namespace RenderWebGL {
   }
 
   class ShaderManager {
-    static EFFECT_INFO: Record<Effect, {
-      uniformName: string;
-      mask: number;
-      converter(rawEffect: number): number;
-      shapeChanges: boolean;
-    }>;
-    static EFFECTS: Effect[];
-    static DRAW_MODE: Record<DrawMode, DrawMode>;
+    static EFFECT_INFO: Record<
+      Effect,
+      {
+        uniformName: string
+        mask: number
+        converter(rawEffect: number): number
+        shapeChanges: boolean
+      }
+    >
+    static EFFECTS: Effect[]
+    static DRAW_MODE: Record<DrawMode, DrawMode>
 
-    _gl: AnyWebGLContext;
-    _shaderCache: Record<DrawMode, twgl.ProgramInfo[]>;
-    _buildShader(drawMode: DrawMode, effectMask: EffectMask): twgl.ProgramInfo;
-    getShader(drawMode: DrawMode, effectMask: EffectMask): twgl.ProgramInfo;
+    _gl: AnyWebGLContext
+    _shaderCache: Record<DrawMode, twgl.ProgramInfo[]>
+    _buildShader(drawMode: DrawMode, effectMask: EffectMask): twgl.ProgramInfo
+    getShader(drawMode: DrawMode, effectMask: EffectMask): twgl.ProgramInfo
   }
 
   class Silhouette {
     // TW
-    unlazy(): void;
-    _lazyData: BitmapData | null;
+    unlazy(): void
+    _lazyData: BitmapData | null
 
-    static _updateCanvas(): HTMLCanvasElement;
+    static _updateCanvas(): HTMLCanvasElement
 
-    _width: number;
-    _height: number;
-    _colorData: Uint8ClampedArray | null;
+    _width: number
+    _height: number
+    _colorData: Uint8ClampedArray | null
 
-    _getColor(silhouette: Silhouette, x: number, y: number, destination?: Uint8ClampedArray): Uint8ClampedArray;
+    _getColor(
+      silhouette: Silhouette,
+      x: number,
+      y: number,
+      destination?: Uint8ClampedArray,
+    ): Uint8ClampedArray
 
     /**
      * @param image Image data
      * @param isPremultiplied Whether alpha is premultiplied. Defaults to false.
      */
-    update(image: BitmapData, isPremultiplied?: boolean): void;
+    update(image: BitmapData, isPremultiplied?: boolean): void
 
-    colorAtNearest(textureCoordinate: twgl.V3, destination?: Uint8ClampedArray): Uint8ClampedArray;
-    colorAtLinear(textureCoordinate: twgl.V3, destination?: Uint8ClampedArray): Uint8ClampedArray;
+    colorAtNearest(textureCoordinate: twgl.V3, destination?: Uint8ClampedArray): Uint8ClampedArray
+    colorAtLinear(textureCoordinate: twgl.V3, destination?: Uint8ClampedArray): Uint8ClampedArray
 
-    isTouchingNearest(textureCoordinate: twgl.V3): boolean;
-    isTouchingLinear(textureCoordinate: twgl.V3): boolean;
+    isTouchingNearest(textureCoordinate: twgl.V3): boolean
+    isTouchingLinear(textureCoordinate: twgl.V3): boolean
   }
 
   // TW: Skin is not an EventListener
   class Skin {
     // TW
-    _renderer: RenderWebGL;
-    emitWasAltered(): void;
-    private: boolean;
-    isMetricsReady(): boolean;
+    _renderer: RenderWebGL
+    emitWasAltered(): void
+    private: boolean
+    isMetricsReady(): boolean
 
-    _id: number;
-    get id(): number;
+    _id: number
+    get id(): number
 
-    get size(): [number, number];
+    get size(): [number, number]
 
-    _rotationCenter: twgl.V3;
-    get rotationCenter(): twgl.V3;
+    _rotationCenter: twgl.V3
+    get rotationCenter(): twgl.V3
 
     /**
      * Always returns the middle of the skin (size / 2).
      * No relation to Skin._rotationCenter or Skin.rotationCenter.
      */
-    calculateRotationCenter(): [number, number];
+    calculateRotationCenter(): [number, number]
 
-    _texture: WebGLTexture | null;
+    _texture: WebGLTexture | null
 
     _uniforms: {
-      u_skinSize: [number, number];
-      u_skin: WebGLTexture | null;
-    };
-    getUniforms(scale?: [number, number]): Skin['_uniforms'];
+      u_skinSize: [number, number]
+      u_skin: WebGLTexture | null
+    }
+    getUniforms(scale?: [number, number]): Skin['_uniforms']
 
-    _silhouette: Silhouette;
-    updateSilhouette(): void;
+    _silhouette: Silhouette
+    updateSilhouette(): void
 
     /**
      * @see {Silhouette.isTouchingNearest}
      */
-    isTouchingNearest(textureCoordinate: twgl.V3): boolean;
+    isTouchingNearest(textureCoordinate: twgl.V3): boolean
 
     /**
      * @see {Silhouette.isTouchingLinear}
      */
-    isTouchingLinear(textureCoordinate: twgl.V3): boolean;
+    isTouchingLinear(textureCoordinate: twgl.V3): boolean
 
-    useNearest(scale: [number, number], drawable: Drawable): boolean;
+    useNearest(scale: [number, number], drawable: Drawable): boolean
 
-    getTexture(scale?: [number, number]): WebGLTexture;
-    _setTexture(image: BitmapData): void;
-    setEmptyImageData(): void;
+    getTexture(scale?: [number, number]): WebGLTexture
+    _setTexture(image: BitmapData): void
+    setEmptyImageData(): void
 
     /**
      * Get the bounds of the drawable for determining its fenced position.
      * For compatibility with Scratch 2, we always use getAABB.
      */
-    getFenceBounds(drawable: Drawable, result?: Rectangle): Rectangle;
+    getFenceBounds(drawable: Drawable, result?: Rectangle): Rectangle
 
-    dispose(): void;
+    dispose(): void
   }
 
   class BitmapSkin extends Skin {
-    static _getBitmapSize(image: BitmapData): [number, number];
+    static _getBitmapSize(image: BitmapData): [number, number]
 
-    _renderer: RenderWebGL;
+    _renderer: RenderWebGL
 
-    _costumeResolution: BitmapResolution;
-    _textureSize: [number, number];
+    _costumeResolution: BitmapResolution
+    _textureSize: [number, number]
 
     /**
      * Synchronously update the content of the skin.
@@ -211,76 +220,86 @@ declare namespace RenderWebGL {
      * @param bitmapResolution Defaults to 2.
      * @param rotationCenter Defaults to the center of the image.
      */
-    setBitmap(image: BitmapData, bitmapResolution?: BitmapResolution, rotationCenter?: [number, number]): void;
+    setBitmap(
+      image: BitmapData,
+      bitmapResolution?: BitmapResolution,
+      rotationCenter?: [number, number],
+    ): void
   }
 
   class SVGSkin extends Skin {
-    _renderer: RenderWebGL;
+    _renderer: RenderWebGL
 
-    _svgImage: HTMLImageElement;
-    _svgImageLoaded: boolean;
-    _size: [number, number];
-    _canvas: HTMLCanvasElement;
-    _context: CanvasRenderingContext2D;
-    _scaledMIPs: WebGLTexture[];
-    _largestMIPScale: number;
-    _maxTextureScale: number;
+    _svgImage: HTMLImageElement
+    _svgImageLoaded: boolean
+    _size: [number, number]
+    _canvas: HTMLCanvasElement
+    _context: CanvasRenderingContext2D
+    _scaledMIPs: WebGLTexture[]
+    _largestMIPScale: number
+    _maxTextureScale: number
 
-    createMIP(scale: number): WebGLTexture;
-    resetMIPs(): void;
+    createMIP(scale: number): WebGLTexture
+    resetMIPs(): void
 
     /**
      * Asynchronously update the content of the skin. May take a couple frames for changes to appear.
      * @param svgData SVG source code
      * @param rotationCenter Defaults to the center of the image.
      */
-    setSVG(svgData: string, rotationCenter?: [number, number]): void;
+    setSVG(svgData: string, rotationCenter?: [number, number]): void
   }
 
   interface PenAttributes {
     /**
      * Pen color in RGBA from 0-1.
      */
-    color4f?: [number, number, number, number];
-    diameter?: number;
+    color4f?: [number, number, number, number]
+    diameter?: number
   }
 
   class PenSkin extends Skin {
     // TW
-    renderQuality: number;
-    setRenderQuality(quality: number): void;
-    _nativeSize: [number, number];
-    _flushLines(): void;
-    _drawPenTexture(texture: WebGLTexture): void;
-    _drawTextureRegionId: DrawingRegion;
-    _enterDrawTexture(): void;
-    _exitDrawTexture(): void;
+    renderQuality: number
+    setRenderQuality(quality: number): void
+    _nativeSize: [number, number]
+    _flushLines(): void
+    _drawPenTexture(texture: WebGLTexture): void
+    _drawTextureRegionId: DrawingRegion
+    _enterDrawTexture(): void
+    _exitDrawTexture(): void
 
-    _renderer: RenderWebGL;
+    _renderer: RenderWebGL
 
-    _size: [number, number];
-    _framebuffer: twgl.FrameBufferInfo;
-    _silhouetteDirty: boolean;
-    _silhouettePixels: Uint8Array;
-    _silhouetteImageData: ImageData;
+    _size: [number, number]
+    _framebuffer: twgl.FrameBufferInfo
+    _silhouetteDirty: boolean
+    _silhouettePixels: Uint8Array
+    _silhouetteImageData: ImageData
 
-    _lineOnBufferDrawRegionId: DrawingRegion;
-    _enterDrawLineOnBuffer(): void;
-    _exitDrawLineOnBuffer(): void;
-    _drawLineOnBuffer(attributes: PenAttributes, x1: number, y1: number, x2: number, y2: number): void;
+    _lineOnBufferDrawRegionId: DrawingRegion
+    _enterDrawLineOnBuffer(): void
+    _exitDrawLineOnBuffer(): void
+    _drawLineOnBuffer(
+      attributes: PenAttributes,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+    ): void
 
-    _usePenBufferDrawRegionId: DrawingRegion;
-    _enterUsePenBuffer(): void;
-    _exitUsePenBuffer(): void;
+    _usePenBufferDrawRegionId: DrawingRegion
+    _enterUsePenBuffer(): void
+    _exitUsePenBuffer(): void
 
-    _lineShader: Shader;
+    _lineShader: Shader
 
-    clear(): void;
-    drawPoint(attributes: PenAttributes, x: number, y: number): void;
-    drawLine(attributes: PenAttributes, x1: number, y1: number, x2: number, y2: number): void;
+    clear(): void
+    drawPoint(attributes: PenAttributes, x: number, y: number): void
+    drawLine(attributes: PenAttributes, x1: number, y1: number, x2: number, y2: number): void
 
-    onNativeSizeChanged(event: ScratchRenderEventMap['NativeSizeChanged']): void;
-    _setCanvasSize(size: [number, number]): void;
+    onNativeSizeChanged(event: ScratchRenderEventMap['NativeSizeChanged']): void
+    _setCanvasSize(size: [number, number]): void
   }
 
   const enum TextBubbleType {
@@ -290,391 +309,458 @@ declare namespace RenderWebGL {
 
   class CanvasMeasurementProvider {
     // TW
-    clearCache(): void;
+    clearCache(): void
 
-    _ctx: CanvasRenderingContext2D;
-    _cache: Record<string, number>;
-    measureText(text: string): number;
-
-    /**
-     * Does nothing.
-     */
-    beginMeasurementSession(): void;
+    _ctx: CanvasRenderingContext2D
+    _cache: Record<string, number>
+    measureText(text: string): number
 
     /**
      * Does nothing.
      */
-    endMeasurementSession(): void;
+    beginMeasurementSession(): void
+
+    /**
+     * Does nothing.
+     */
+    endMeasurementSession(): void
   }
 
   class TextWrapper {
-    _measurementProvider: CanvasMeasurementProvider;
-    _cache: Record<string, string[]>;
-    wrapText(maxWidth: number, text: string): string[];
+    _measurementProvider: CanvasMeasurementProvider
+    _cache: Record<string, string[]>
+    wrapText(maxWidth: number, text: string): string[]
   }
 
   class TextBubbleSkin extends Skin {
     // TW
-    readonly _style: Readonly<TextBubbleStyle>;
+    readonly _style: Readonly<TextBubbleStyle>
     /**
      * Change style used for rendering the bubble. Properties not specified will be unchanged.
      * Given argument will be copied internally, so you can freely change it later without affecting the skin.
      */
-    setStyle(newStyles: Partial<TextBubbleStyle>): void;
+    setStyle(newStyles: Partial<TextBubbleStyle>): void
 
-    _renderer: RenderWebGL;
+    _renderer: RenderWebGL
 
-    _canvas: HTMLCanvasElement;
-    _size: [number, number];
-    _renderedScale: number;
-    _lines: string[];
+    _canvas: HTMLCanvasElement
+    _size: [number, number]
+    _renderedScale: number
+    _lines: string[]
     _textAreaSize: {
-      width: number;
+      width: number
       height: number
-    };
-    _text: string;
-    _bubbleType: TextBubbleType;
-    _pointsLeft: boolean;
-    _textDirty: boolean;
-    _textureDirty: boolean;
+    }
+    _text: string
+    _bubbleType: TextBubbleType
+    _pointsLeft: boolean
+    _textDirty: boolean
+    _textureDirty: boolean
 
-    measurementProvider: CanvasMeasurementProvider;
-    textWrapper: TextWrapper;
+    measurementProvider: CanvasMeasurementProvider
+    textWrapper: TextWrapper
 
     /**
      * @param type Type of bubble.
      * @param text Text to display.
      * @param pointsLeft True if this bubble points left, false if this bubble points right.
      */
-    setTextBubble(type: TextBubbleType, text: string, pointsLeft: boolean): void;
+    setTextBubble(type: TextBubbleType, text: string, pointsLeft: boolean): void
 
-    _restyleCanvas(): void;
-    _reflowLines(): void;
+    _restyleCanvas(): void
+    _reflowLines(): void
 
-    _renderTextBubble(scale: number): void;
+    _renderTextBubble(scale: number): void
   }
 
   class Drawable {
     // TW
-    interactive: boolean;
-    _highQuality: boolean;
-    setHighQuality(highQuality: boolean): void;
+    interactive: boolean
+    _highQuality: boolean
+    setHighQuality(highQuality: boolean): void
 
-    static color4fFromID(id: number): [number, number, number, number];
-    static color3bToID(r: number, g: number, b: number): number;
-    static sampleColor4b(coordinate: twgl.V3, drawable :Drawable, destination: Uint8ClampedArray, effectMask?: EffectMask): Uint8ClampedArray;
+    static color4fFromID(id: number): [number, number, number, number]
+    static color3bToID(r: number, g: number, b: number): number
+    static sampleColor4b(
+      coordinate: twgl.V3,
+      drawable: Drawable,
+      destination: Uint8ClampedArray,
+      effectMask?: EffectMask,
+    ): Uint8ClampedArray
 
-    _id: number;
-    get id(): number;
+    _id: number
+    get id(): number
 
     _uniforms: {
-      u_modelMatrix: twgl.M4;
+      u_modelMatrix: twgl.M4
 
       /**
        * Only used in some debugging modes.
        */
-      u_silhouetteColor: [number, number, number, number];
-    } & Record<Effect, number>;
-    getUniforms(): Drawable['_uniforms'];
+      u_silhouetteColor: [number, number, number, number]
+    } & Record<Effect, number>
+    getUniforms(): Drawable['_uniforms']
 
-    _skin: Skin;
-    get skin(): Skin;
-    set skin(skin: Skin);
-    _skinWasAltered(): void;
+    _skin: Skin
+    get skin(): Skin
+    set skin(skin: Skin)
+    _skinWasAltered(): void
 
-    _position: twgl.V3;
+    _position: twgl.V3
     /**
      * @param position The new position. This will be rounded.
      */
-    updatePosition(position: [number, number]): void;
+    updatePosition(position: [number, number]): void
 
-    _scale: twgl.V3;
-    get scale(): twgl.V3;
-    updateScale(scale: [number, number]): void;
+    _scale: twgl.V3
+    get scale(): twgl.V3
+    updateScale(scale: [number, number]): void
 
-    _direction: number;
-    updateDirection(direction: number): void;
+    _direction: number
+    updateDirection(direction: number): void
 
-    _visible: boolean;
-    getVisible(): boolean;
-    updateVisible(visible: boolean): void;
+    _visible: boolean
+    getVisible(): boolean
+    updateVisible(visible: boolean): void
 
-    enabledEffects: EffectMask;
-    updateEffect(effect: Effect, value: number): void;
+    enabledEffects: EffectMask
+    updateEffect(effect: Effect, value: number): void
 
     /**
      * @deprecated Use the specific update* methods instead.
      */
-    updateProperties(properties: {
-      position?: [number, number];
-      direction?: number;
-      scale?: number;
-      visible?: boolean;
-    } | Record<Effect, number>): void;
+    updateProperties(
+      properties:
+        | {
+            position?: [number, number]
+            direction?: number
+            scale?: number
+            visible?: boolean
+          }
+        | Record<Effect, number>,
+    ): void
 
-    _transformDirty: boolean;
-    _calculateTransform(): void;
+    _transformDirty: boolean
+    _calculateTransform(): void
 
-    _rotationMatrix: twgl.M4;
-    _rotationTransformDirty: boolean;
+    _rotationMatrix: twgl.M4
+    _rotationTransformDirty: boolean
 
-    _rotationAdjusted: twgl.V3;
-    _rotationCenterDirty: boolean;
+    _rotationAdjusted: twgl.V3
+    _rotationCenterDirty: boolean
 
-    _skinScale: twgl.V3;
-    _skinScaleDirty: boolean;
+    _skinScale: twgl.V3
+    _skinScaleDirty: boolean
 
-    _convexHullPoints: Array<[number, number]>;
-    _convexHullDirty: boolean;
-    needsConvexHullPoints(): boolean;
-    setConvexHullDirty(): void;
-    setConvexHullPoints(points: Array<[number, number]>): void;
+    _convexHullPoints: Array<[number, number]>
+    _convexHullDirty: boolean
+    needsConvexHullPoints(): boolean
+    setConvexHullDirty(): void
+    setConvexHullPoints(points: Array<[number, number]>): void
 
-    _transformedHullPoints: Array<[number, number]>;
-    _transformedHullDirty: boolean;
-    _getTransformedHullPoints(): Array<[number, number]>;
+    _transformedHullPoints: Array<[number, number]>
+    _transformedHullDirty: boolean
+    _getTransformedHullPoints(): Array<[number, number]>
 
-    setTransformDirty(): void;
+    setTransformDirty(): void
 
-    _inverseMatrix: twgl.M4;
-    _inverseTransformDirty: boolean;
-    updateMatrix(): void;
+    _inverseMatrix: twgl.M4
+    _inverseTransformDirty: boolean
+    updateMatrix(): void
 
-    getBounds(result?: Rectangle): Rectangle;
-    getBoundsForBubble(result?: Rectangle): Rectangle;
-    getAABB(result?: Rectangle): Rectangle;
-    getFastBounds(result?: Rectangle): Rectangle;
+    getBounds(result?: Rectangle): Rectangle
+    getBoundsForBubble(result?: Rectangle): Rectangle
+    getAABB(result?: Rectangle): Rectangle
+    getFastBounds(result?: Rectangle): Rectangle
 
-    updateCPURenderAttributes(): void;
+    updateCPURenderAttributes(): void
     /**
      * Check if the world position touches the skin.
      * The caller is responsible for ensuring this drawable's inverse matrix & its skin's silhouette are up-to-date.
      * @see updateCPURenderAttributes
      */
-    isTouching(textureCoordinate: twgl.V3): boolean;
-    _isTouchingNearest(textureCoordinate: twgl.V3): boolean;
-    _isTouchingLinear(textureCoordinate: twgl.V3): boolean;
-    _isTouchingNever(textureCoordinate: twgl.V3): false;
+    isTouching(textureCoordinate: twgl.V3): boolean
+    _isTouchingNearest(textureCoordinate: twgl.V3): boolean
+    _isTouchingLinear(textureCoordinate: twgl.V3): boolean
+    _isTouchingNever(textureCoordinate: twgl.V3): false
 
-    dispose(): void;
+    dispose(): void
   }
 
   interface ScratchRenderEventMap {
     // TW
-    UseHighQualityRenderChanged: [boolean];
-    AllowPrivateSkinAccessChanged: [boolean];
+    UseHighQualityRenderChanged: [boolean]
+    AllowPrivateSkinAccessChanged: [boolean]
 
     NativeSizeChanged: {
-      newSize: [number, number];
+      newSize: [number, number]
     }
   }
 }
 
 declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap> {
   // TW
-  static powerPreference: WebGLPowerPreference;
+  static powerPreference: WebGLPowerPreference
   /**
    * aka high quality pen.
    */
-  useHighQualityRender: boolean;
-  offscreenTouching: boolean;
-  dirty: boolean;
+  useHighQualityRender: boolean
+  offscreenTouching: boolean
+  dirty: boolean
   /**
    * Whether projects should be able to access the contents of private skins such as webcams.
    * If set to false, routines such as isTouchingColor will ignore private skins.
    * Private skins will still be rendered on the canvas regardless of this setting.
    */
-  allowPrivateSkinAccess: boolean;
-  setUseHighQualityRender(enabled: boolean): void;
-  _updateRenderQuality(): void;
-  setPrivateSkinAccess(enabled: boolean): void;
-  markSkinAsPrivate(skinId: number): void;
-  markDrawableAsNoninteractive(drawableId: number): void;
-  skinWasAltered(skin: RenderWebGL.Skin): void;
-  createTextWrapper(measurementProvider: RenderWebGL.CanvasMeasurementProvider): RenderWebGL.TextWrapper;
-  customFonts: Record<string, string>;
-  _customFontStyles: HTMLStyleElement | null;
-  setCustomFonts(customFonts: Record<string, string>): void;
-  addOverlay(element: HTMLElement, mode?: RenderWebGL.OverlayMode): RenderWebGL.Overlay;
-  removeOverlay(element: HTMLElement): void;
+  allowPrivateSkinAccess: boolean
+  setUseHighQualityRender(enabled: boolean): void
+  _updateRenderQuality(): void
+  setPrivateSkinAccess(enabled: boolean): void
+  markSkinAsPrivate(skinId: number): void
+  markDrawableAsNoninteractive(drawableId: number): void
+  skinWasAltered(skin: RenderWebGL.Skin): void
+  createTextWrapper(
+    measurementProvider: RenderWebGL.CanvasMeasurementProvider,
+  ): RenderWebGL.TextWrapper
+  customFonts: Record<string, string>
+  _customFontStyles: HTMLStyleElement | null
+  setCustomFonts(customFonts: Record<string, string>): void
+  addOverlay(element: HTMLElement, mode?: RenderWebGL.OverlayMode): RenderWebGL.Overlay
+  removeOverlay(element: HTMLElement): void
   /**
    * Element that contains all overlays.
    */
-  overlayContainer: HTMLElement;
-  _overlays: RenderWebGL.Overlay[];
-  _updateOverlays(): void;
+  overlayContainer: HTMLElement
+  _overlays: RenderWebGL.Overlay[]
+  _updateOverlays(): void
   exports: {
-    twgl: twgl;
+    twgl: twgl
     Drawable: {
-      new(id: number, renderer: RenderWebGL): RenderWebGL.Drawable;
-    };
+      new (id: number, renderer: RenderWebGL): RenderWebGL.Drawable
+    }
     Skin: {
-      new(id: number, renderer: RenderWebGL): RenderWebGL.Skin;
-    };
+      new (id: number, renderer: RenderWebGL): RenderWebGL.Skin
+    }
     BitmapSkin: {
-      new(id: number, renderer: RenderWebGL): RenderWebGL.BitmapSkin;
-    };
+      new (id: number, renderer: RenderWebGL): RenderWebGL.BitmapSkin
+    }
     TextBubbleSkin: {
-      new(id: number, renderer: RenderWebGL): RenderWebGL.TextBubbleSkin;
-    };
+      new (id: number, renderer: RenderWebGL): RenderWebGL.TextBubbleSkin
+    }
     PenSkin: {
-      new(id: number, renderer: RenderWebGL): RenderWebGL.PenSkin;
+      new (id: number, renderer: RenderWebGL): RenderWebGL.PenSkin
     }
     SVGSkin: {
-      new(id: number, renderer: RenderWebGL): RenderWebGL.SVGSkin;
+      new (id: number, renderer: RenderWebGL): RenderWebGL.SVGSkin
     }
     CanvasMeasurementProvider: {
-      new(ctx: CanvasRenderingContext2D): RenderWebGL.CanvasMeasurementProvider;
+      new (ctx: CanvasRenderingContext2D): RenderWebGL.CanvasMeasurementProvider
     }
     EffectTransform: {
-      transformPoint(drawable: RenderWebGL.Drawable, vec: twgl.V3, dst: twgl.V3): twgl.V3;
-      transformColor(drawable: RenderWebGL.Drawable, inOutColor: Uint8ClampedArray, effectMask?: number): Uint8ClampedArray;
-    };
+      transformPoint(drawable: RenderWebGL.Drawable, vec: twgl.V3, dst: twgl.V3): twgl.V3
+      transformColor(
+        drawable: RenderWebGL.Drawable,
+        inOutColor: Uint8ClampedArray,
+        effectMask?: number,
+      ): Uint8ClampedArray
+    }
   }
   /**
    * Suggested maximum texture size in texels. This is not a hard limit.
    */
-  maxTextureDimension: number;
+  maxTextureDimension: number
   /**
    * Modify the suggested maximum texture dimension. This should be set before any skins are created.
    * @param newMax The new maximum in texels
    */
-  setMaxTextureDimension(newMax: number): void;
-  _penSkinId: number | null;
+  setMaxTextureDimension(newMax: number): void
+  _penSkinId: number | null
 
-  static isSupported(canvas?: HTMLCanvasElement): boolean;
+  static isSupported(canvas?: HTMLCanvasElement): boolean
 
   /**
    * If WebGL 1 is supported, returns a WebGL 1 context.
    * If WebGL 1 is not supported but WebGL 2 is supported, returns a WebGL 2 context.
    * Otherwise, returns null.
    */
-  static _getContext(canvas: HTMLCanvasElement): RenderWebGL.AnyWebGLContext | null;
+  static _getContext(canvas: HTMLCanvasElement): RenderWebGL.AnyWebGLContext | null
 
   // TW: converted to instance method; returns 4th channel for alpha
-  sampleColor4b(vector: twgl.V3, drawables: ReturnType<RenderWebGL['_candidatesTouching']>, destination?: Uint8ClampedArray): Uint8ClampedArray;
+  sampleColor4b(
+    vector: twgl.V3,
+    drawables: ReturnType<RenderWebGL['_candidatesTouching']>,
+    destination?: Uint8ClampedArray,
+  ): Uint8ClampedArray
 
-  constructor(canvas: HTMLCanvasElement, xLeft?: number, xRight?: number, yBottom?: number, yTop?: number);
+  constructor(
+    canvas: HTMLCanvasElement,
+    xLeft?: number,
+    xRight?: number,
+    yBottom?: number,
+    yTop?: number,
+  )
 
-  get canvas(): HTMLCanvasElement;
-  _gl: RenderWebGL.AnyWebGLContext;
-  get gl(): RenderWebGL.AnyWebGLContext;
+  get canvas(): HTMLCanvasElement
+  _gl: RenderWebGL.AnyWebGLContext
+  get gl(): RenderWebGL.AnyWebGLContext
 
-  _xRight: number;
-  _xLeft: number;
-  _yTop: number;
-  _yBottom: number;
+  _xRight: number
+  _xLeft: number
+  _yTop: number
+  _yBottom: number
 
-  setStageSize(xLeft: number, xRight: number, yBottom: number, yTop: number): void;
-  resize(width: number, height: number): void;
+  setStageSize(xLeft: number, xRight: number, yBottom: number, yTop: number): void
+  resize(width: number, height: number): void
 
-  _nativeSize: [number, number];
-  getNativeSize(): [number, number];
-  _setNativeSize(width: number, height: number): void;
-  onNativeSizeChanged(event: RenderWebGL.ScratchRenderEventMap['NativeSizeChanged']): void;
+  _nativeSize: [number, number]
+  getNativeSize(): [number, number]
+  _setNativeSize(width: number, height: number): void
+  onNativeSizeChanged(event: RenderWebGL.ScratchRenderEventMap['NativeSizeChanged']): void
 
   /**
    * Renders the stage on the canvas.
    */
-  draw(): void;
+  draw(): void
 
-  _drawThese(drawableIds: number[], drawMode: RenderWebGL.DrawMode, projection: twgl.M4, opts?: {
-    // TW
-    skipPrivateSkins?: boolean;
+  _drawThese(
+    drawableIds: number[],
+    drawMode: RenderWebGL.DrawMode,
+    projection: twgl.M4,
+    opts?: {
+      // TW
+      skipPrivateSkins?: boolean
 
-    filter?: (drawableId: number) => boolean;
-    extraUniforms?: object;
-    effectMask?: RenderWebGL.EffectMask;
-    ignoreVisibility?: boolean;
-    framebufferWidth?: number;
-    framebufferHeight?: number;
-  }): void;
+      filter?: (drawableId: number) => boolean
+      extraUniforms?: object
+      effectMask?: RenderWebGL.EffectMask
+      ignoreVisibility?: boolean
+      framebufferWidth?: number
+      framebufferHeight?: number
+    },
+  ): void
 
-  _drawList: number[];
-  _addToDrawList(drawableID: number, group: RenderWebGL.LayerGroup): void;
-  _updateOffsets(updateType: 'add' | 'delete', index: number): void;
-  get _visibleDrawList(): number[];
-  getDrawableOrder(drawableID: number): number | -1;
-  setDrawableOrder(drawableID: number, order: number, group: RenderWebGL.LayerGroup, isRelative?: boolean, min?: number): void;
+  _drawList: number[]
+  _addToDrawList(drawableID: number, group: RenderWebGL.LayerGroup): void
+  _updateOffsets(updateType: 'add' | 'delete', index: number): void
+  get _visibleDrawList(): number[]
+  getDrawableOrder(drawableID: number): number | -1
+  setDrawableOrder(
+    drawableID: number,
+    order: number,
+    group: RenderWebGL.LayerGroup,
+    isRelative?: boolean,
+    min?: number,
+  ): void
 
-  _groupOrdering: RenderWebGL.LayerGroup[]; 
-  _layerGroups: Record<RenderWebGL.LayerGroup, {
-    groupIndex: number;
-    drawListOffset: number
-  }>;
-  setLayerGroupOrdering(groupOrdering: RenderWebGL.LayerGroup[]): void;
-  _endIndexForKnownLayerGroup(layerGroup: RenderWebGL.LayerGroup): number;
+  _groupOrdering: RenderWebGL.LayerGroup[]
+  _layerGroups: Record<
+    RenderWebGL.LayerGroup,
+    {
+      groupIndex: number
+      drawListOffset: number
+    }
+  >
+  setLayerGroupOrdering(groupOrdering: RenderWebGL.LayerGroup[]): void
+  _endIndexForKnownLayerGroup(layerGroup: RenderWebGL.LayerGroup): number
 
-  _nextDrawableId: number;
-  _allDrawables: RenderWebGL.Drawable[];
+  _nextDrawableId: number
+  _allDrawables: RenderWebGL.Drawable[]
 
-  createDrawable(group: string): number;
-  destroyDrawable(drawableID: number, group: RenderWebGL.LayerGroup): void;
+  createDrawable(group: string): number
+  destroyDrawable(drawableID: number, group: RenderWebGL.LayerGroup): void
 
-  _allSkins: RenderWebGL.Skin[];
-  _nextSkinId: number;
+  _allSkins: RenderWebGL.Skin[]
+  _nextSkinId: number
 
   /**
    * @see {RenderWebGL.BitmapSkin.setBitmap}
    */
-  createBitmapSkin(image: RenderWebGL.BitmapData, bitmapResolution?: RenderWebGL.BitmapResolution, rotationCenter?: [number, number]): number;
+  createBitmapSkin(
+    image: RenderWebGL.BitmapData,
+    bitmapResolution?: RenderWebGL.BitmapResolution,
+    rotationCenter?: [number, number],
+  ): number
 
   /**
    * @see {RenderWebGL.BitmapSkin.setBitmap}
    */
-  updateBitmapSkin(skinId: number, image: RenderWebGL.BitmapData, bitmapResolution?: RenderWebGL.BitmapResolution, rotationCenter?: [number, number]): void;
+  updateBitmapSkin(
+    skinId: number,
+    image: RenderWebGL.BitmapData,
+    bitmapResolution?: RenderWebGL.BitmapResolution,
+    rotationCenter?: [number, number],
+  ): void
 
   /**
    * @see {RenderWebGL.SVGSkin.setSVG}
    */
-  createSVGSkin(svgData: string, rotationCenter?: [number, number]): number;
+  createSVGSkin(svgData: string, rotationCenter?: [number, number]): number
 
   /**
    * @see {RenderWebGL.SVGSkin.setSVG}
    */
-  updateSVGSkin(skinId: number, svgData: string, rotationCenter?: [number, number]): void;
+  updateSVGSkin(skinId: number, svgData: string, rotationCenter?: [number, number]): void
 
   /**
    * @see {RenderWebGL.TextBubbleSkin.setTextBubble}
    */
-  createTextSkin(type: RenderWebGL.TextBubbleType, text: string, pointsLeft: boolean): number;
+  createTextSkin(type: RenderWebGL.TextBubbleType, text: string, pointsLeft: boolean): number
 
   /**
    * @see {RenderWebGL.TextBubbleSkin.setTextBubble}
    */
-  updateTextSkin(skinId: number, type: RenderWebGL.TextBubbleType, text: string, pointsLeft: boolean): void;
+  updateTextSkin(
+    skinId: number,
+    type: RenderWebGL.TextBubbleType,
+    text: string,
+    pointsLeft: boolean,
+  ): void
 
-  createPenSkin(): number;
+  createPenSkin(): number
 
-  destroySkin(skinId: number): void;
+  destroySkin(skinId: number): void
 
-  _reskin(skinId: number, newSkin: RenderWebGL.Skin): void;
+  _reskin(skinId: number, newSkin: RenderWebGL.Skin): void
 
-  getBounds(drawableId: number): RenderWebGL.Rectangle;
-  getBoundsForBubble(drawableId: number): RenderWebGL.Rectangle;
+  getBounds(drawableId: number): RenderWebGL.Rectangle
+  getBoundsForBubble(drawableId: number): RenderWebGL.Rectangle
 
-  _getConvexHullPointsForDrawable(drawableID: number): Array<[number, number]>;
+  _getConvexHullPointsForDrawable(drawableID: number): Array<[number, number]>
 
-  getCurrentSkinSize(drawableId: number): [number, number];
-  getSkinSize(skinId: number): [number, number];
-  getSkinRotationCenter(skinId: number): [number, number];
+  getCurrentSkinSize(drawableId: number): [number, number]
+  getSkinSize(skinId: number): [number, number]
+  getSkinRotationCenter(skinId: number): [number, number]
 
   /**
    * Determine if a drawable is touching a color or if a certain color of the drawable is touching a color.
    * @param color RGB color from 0-255
    * @param mask RGB color from 0-255. Used by "is color touching color" block.
    */
-  isTouchingColor(drawableId: number, color: [number, number, number], mask?: [number, number, number]): boolean;
+  isTouchingColor(
+    drawableId: number,
+    color: [number, number, number],
+    mask?: [number, number, number],
+  ): boolean
 
-  _isTouchingColorGpuStart(drawableId: number, candidateIds: number[], bounds: RenderWebGL.Rectangle, color: [number, number, number], mask?: [number, number, number]): void;
-  _isTouchingColorGpuFin(bounds: RenderWebGL.Rectangle, color: [number, number, number], stop: number): boolean;
+  _isTouchingColorGpuStart(
+    drawableId: number,
+    candidateIds: number[],
+    bounds: RenderWebGL.Rectangle,
+    color: [number, number, number],
+    mask?: [number, number, number],
+  ): void
+  _isTouchingColorGpuFin(
+    bounds: RenderWebGL.Rectangle,
+    color: [number, number, number],
+    stop: number,
+  ): boolean
 
   /**
    * Determine if a drawable is intersecting a set of other drawables.
    * @param drawableId ID of the target drawable
    * @param candidateIds The IDs of the drawables to test for collision with the target drawable. Defaults to all drawables.
    */
-  isTouchingDrawables(drawableId: number, candidateIds?: number[]): boolean;
+  isTouchingDrawables(drawableId: number, candidateIds?: number[]): boolean
 
   /**
    * @param centerX X coordinate in client space
@@ -682,7 +768,12 @@ declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap
    * @param width Defaults to 1
    * @param height Defaults to 1
    */
-  clientSpaceToScratchBounds(centerX: number, centerY: number, width?: number, height?: number): RenderWebGL.Rectangle;
+  clientSpaceToScratchBounds(
+    centerX: number,
+    centerY: number,
+    width?: number,
+    height?: number,
+  ): RenderWebGL.Rectangle
 
   /**
    * Determine if a drawable is touching a point.
@@ -692,7 +783,13 @@ declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap
    * @param width Defaults to 1
    * @param height Defaults to 1
    */
-  drawableTouching(drawableId: number, centerX: number, centerY: number, width?: number, height?: number): boolean;
+  drawableTouching(
+    drawableId: number,
+    centerX: number,
+    centerY: number,
+    width?: number,
+    height?: number,
+  ): boolean
 
   /**
    * Determine the top-most drawable at a point.
@@ -703,21 +800,27 @@ declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap
    * @param candidateIds Defaults to all drawables
    * @returns The ID of the top-most drawable, or -1 if there is none. (TW: returns false instead of -1 in Scratch)
    */
-  pick(centerX: number, centerY: number, width?: number, height?: number, candidateIds?: number[]): number | -1;
+  pick(
+    centerX: number,
+    centerY: number,
+    width?: number,
+    height?: number,
+    candidateIds?: number[],
+  ): number | -1
 
   extractDrawableScreenSpace(drawableId: number): {
-    imageData: ImageData;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
+    imageData: ImageData
+    x: number
+    y: number
+    width: number
+    height: number
+  }
 
   /**
    * :3
    * @see {RenderWebGL.extractDrawableScreenSpace}
    */
-  canHazPixels(drawableID: number): ReturnType<RenderWebGL['extractDrawableScreenSpace']>;
+  canHazPixels(drawableID: number): ReturnType<RenderWebGL['extractDrawableScreenSpace']>
 
   /**
    * @param x X coordinate in client space
@@ -725,63 +828,84 @@ declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap
    * @param radius "Radius" of the square, in pixels
    * @returns Data about the pixels in a square around the coordinates. Color channels are RGBA from 0-255
    */
-  extractColor(x: number, y: number, radius: number): {
-    data: Uint8Array;
-    width: number;
-    height: number;
+  extractColor(
+    x: number,
+    y: number,
+    radius: number,
+  ): {
+    data: Uint8Array
+    width: number
+    height: number
     color: {
-      r: number;
-      g: number;
-      b: number;
-      a: number;
+      r: number
+      g: number
+      b: number
+      a: number
     }
-  };
+  }
 
   /**
    * Get the "candidate bounding box" to use for "touching" queries.
    * @returns The rectangle, or null if the drawable is offscreen or has no skin.
    */
-  _touchingBounds(drawableId: number): RenderWebGL.Rectangle | null;
+  _touchingBounds(drawableId: number): RenderWebGL.Rectangle | null
 
-  _candidatesTouching(drawableId: number, candidateIds: number[]): Array<{
-    id: number;
-    drawable: RenderWebGL.Drawable;
-    intersection: RenderWebGL.Rectangle;
-  }>;
-  
-  _candidatesBounds(candidates: ReturnType<RenderWebGL['_candidatesTouching']>): RenderWebGL.Rectangle;
+  _candidatesTouching(
+    drawableId: number,
+    candidateIds: number[],
+  ): Array<{
+    id: number
+    drawable: RenderWebGL.Drawable
+    intersection: RenderWebGL.Rectangle
+  }>
 
-  updateDrawableSkinId(drawableId: number, skinId: number): void;
-  updateDrawablePosition(drawableId: number, position: [number, number]): void;
-  updateDrawableDirection(drawableId: number, direction: number): void;
-  updateDrawableScale(drawableId: number, scale: [number, number]): void;
-  updateDrawableDirectionScale(drawableId: number, direction: number, scale: [number, number]): void;
-  updateDrawableVisible(drawableId: number, visible: boolean): void;
-  updateDrawableEffect(drawableId: number, effectName: RenderWebGL.Effect, value: number): void;
+  _candidatesBounds(
+    candidates: ReturnType<RenderWebGL['_candidatesTouching']>,
+  ): RenderWebGL.Rectangle
+
+  updateDrawableSkinId(drawableId: number, skinId: number): void
+  updateDrawablePosition(drawableId: number, position: [number, number]): void
+  updateDrawableDirection(drawableId: number, direction: number): void
+  updateDrawableScale(drawableId: number, scale: [number, number]): void
+  updateDrawableDirectionScale(drawableId: number, direction: number, scale: [number, number]): void
+  updateDrawableVisible(drawableId: number, visible: boolean): void
+  updateDrawableEffect(drawableId: number, effectName: RenderWebGL.Effect, value: number): void
   /**
    * @deprecated Use the individual updateDrawable* methods instead.
    */
-  updateDrawableProperties(drawableId: number, properties: {
-    skinId?: number;
-    position?: [number, number];
-    direction?: number;
-    scale?: number;
-    visible?: number;
-  } | Record<RenderWebGL.Effect, number>): void;
+  updateDrawableProperties(
+    drawableId: number,
+    properties:
+      | {
+          skinId?: number
+          position?: [number, number]
+          direction?: number
+          scale?: number
+          visible?: number
+        }
+      | Record<RenderWebGL.Effect, number>,
+  ): void
 
-  getFencedPositionOfDrawable(drawableId: number, position: [number, number]): [number, number];
+  getFencedPositionOfDrawable(drawableId: number, position: [number, number]): [number, number]
 
-  penClear(penSkinId: number): void;
-  penPoint(penSkinId: number, penAttributes: RenderWebGL.PenAttributes, x: number, y: number): void;
-  penLine(penSkinId: number, penAttributes: RenderWebGL.PenAttributes, x1: number, y1: number, x2: number, y2: number): void;
-  penStamp(penSkinId: number, stampDrawableId: number): void;
+  penClear(penSkinId: number): void
+  penPoint(penSkinId: number, penAttributes: RenderWebGL.PenAttributes, x: number, y: number): void
+  penLine(
+    penSkinId: number,
+    penAttributes: RenderWebGL.PenAttributes,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): void
+  penStamp(penSkinId: number, stampDrawableId: number): void
 
-  _projection: twgl.M4;
+  _projection: twgl.M4
 
-  _shaderManager: RenderWebGL.ShaderManager;
+  _shaderManager: RenderWebGL.ShaderManager
 
-  _regionId: unknown | null;
-  _exitRegion: Function | null;
+  _regionId: unknown | null
+  _exitRegion: Function | null
 
   /**
    * Enter a drawing region.
@@ -789,23 +913,23 @@ declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap
    * @param enter Called when entering the drawing region (which is what this function does). Defaults to regionId.enter.
    * @param exit Called when leaving the drawing region. Defaults to regionId.exit.
    */
-  enterDrawRegion(regionId: unknown, enter?: Function, exit?: Function): void;
+  enterDrawRegion(regionId: unknown, enter?: Function, exit?: Function): void
 
-  _doExitDrawRegion(): void;
+  _doExitDrawRegion(): void
 
-  _backgroundDrawRegionId: RenderWebGL.DrawingRegion;
-  _enterDrawBackground(): void;
-  _exitDrawBackground(): void;
+  _backgroundDrawRegionId: RenderWebGL.DrawingRegion
+  _enterDrawBackground(): void
+  _exitDrawBackground(): void
 
   /**
    * RGBA from 0-1
    */
-  _backgroundColor4f: [number, number, number, number];
+  _backgroundColor4f: [number, number, number, number]
 
   /**
    * RGB from 0-255
    */
-  _backgroundColor3b: [number, number, number];
+  _backgroundColor3b: [number, number, number]
 
   /**
    * @param red Red from 0-1
@@ -813,18 +937,18 @@ declare class RenderWebGL extends EventEmitter<RenderWebGL.ScratchRenderEventMap
    * @param blue Blue from 0-1
    * @param alpha Alpha from 0-1, defaults to 1. (from TW)
    */
-  setBackgroundColor(red: number, green: number, blue: number, alpha?: number): void;
+  setBackgroundColor(red: number, green: number, blue: number, alpha?: number): void
 
-  _snapshotCallbacks: Array<(dataURL: string) => void>;
-  requestSnapshot(callback: (dataURL: string) => void): void;
+  _snapshotCallbacks: Array<(dataURL: string) => void>
+  requestSnapshot(callback: (dataURL: string) => void): void
 
-  _useGpuMode: RenderWebGL.UseGpuModes;
-  setUseGpuMode(useGpuMode: RenderWebGL.UseGpuModes): void;
-  _getMaxPixelsForCPU(): number;
+  _useGpuMode: RenderWebGL.UseGpuModes
+  setUseGpuMode(useGpuMode: RenderWebGL.UseGpuModes): void
+  _getMaxPixelsForCPU(): number
 
-  _debugCanvas?: HTMLCanvasElement;
-  setDebugCanvas(canvas: HTMLCanvasElement): void;
+  _debugCanvas?: HTMLCanvasElement
+  setDebugCanvas(canvas: HTMLCanvasElement): void
 
-  _bufferInfo: twgl.BufferInfo;
-  _createGeometry(): void;
+  _bufferInfo: twgl.BufferInfo
+  _createGeometry(): void
 }

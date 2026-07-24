@@ -3,10 +3,13 @@
 
 declare namespace twgl {
   interface BufferInfo {
-    numElements: number;
-    attribs: Record<string, {
-      buffer: WebGLBuffer;
-    }>;
+    numElements: number
+    attribs: Record<
+      string,
+      {
+        buffer: WebGLBuffer
+      }
+    >
   }
 
   interface ProgramInfo {
@@ -14,10 +17,10 @@ declare namespace twgl {
   }
 
   interface FrameBufferInfo {
-    attachments: WebGLTexture[];
-    framebuffer: WebGLFramebuffer;
-    width: number;
-    height: number;
+    attachments: WebGLTexture[]
+    framebuffer: WebGLFramebuffer
+    width: number
+    height: number
   }
 
   interface M4 {
@@ -30,12 +33,12 @@ declare namespace twgl {
 }
 
 declare class twgl {
-  createFramebufferInfo(...args: unknown[]): twgl.FrameBufferInfo;
-  resizeFramebufferInfo(...args: unknown[]): void;
-  createProgramInfo(...args: unknown[]): twgl.ProgramInfo;
-  createBufferInfoFromArrays(...args: unknown[]): twgl.BufferInfo;
-  createTexture(...args: unknown[]): WebGLTexture;
-  setBuffersAndAttributes(...args: unknown[]): void;
-  setUniforms(...args: unknown[]): void;
-  drawBufferInfo(...args: unknown[]): void;
+  createFramebufferInfo(...args: unknown[]): twgl.FrameBufferInfo
+  resizeFramebufferInfo(...args: unknown[]): void
+  createProgramInfo(...args: unknown[]): twgl.ProgramInfo
+  createBufferInfoFromArrays(...args: unknown[]): twgl.BufferInfo
+  createTexture(...args: unknown[]): WebGLTexture
+  setBuffersAndAttributes(...args: unknown[]): void
+  setUniforms(...args: unknown[]): void
+  drawBufferInfo(...args: unknown[]): void
 }

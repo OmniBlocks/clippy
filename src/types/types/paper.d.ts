@@ -12,6 +12,6 @@ declare namespace Paper {
 
   interface Tool {
     // TODO
-    activate(): void;
+    activate(): void
   }
 }
