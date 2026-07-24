@@ -10,8 +10,10 @@ import { Aside } from '@astrojs/starlight/components'
 This is a tutorial on how to create a TurboWarp extension with Clippy. Specifically, we will create a replica
 of a few example extensions from the [TurboWarp docs](https://docs.turbowarp.org/development/extensions).
 
-Note: we recommend you learn how to make small, monolithic extensions before using Clippy. It will help you
+<Aside>
+We recommend you learn how to make small, monolithic extensions before using Clippy. It will help you
 understand how the system works.
+</Aside>
 
 ## Install Clippy CLI
 
@@ -49,8 +51,13 @@ how to add your package manager's binaries to your PATH.
 To assist Clippy in collecting block declarations and generating your extension, your repository must look like this:
 
 <FileTree>
-  - scratch.yaml or scratch.json / scratch.json5 - src - blocks - ... soon, we will add
-  [hello.js](/clippy/tutorial/hello-world) - menus discussed [later](/clippy/tutorial/menus) - ...
+  - scratch.yaml or scratch.json / scratch.json5
+  - src
+    - blocks 
+      - ... soon, we will add [hello.js](/clippy/tutorial/hello-world)
+    - menus
+      - ... discussed [later](/clippy/tutorial/menus) 
+
 </FileTree>
 
 Clipy does not care if you have additional folders or files. In fact, this can be useful for cases where you want to
