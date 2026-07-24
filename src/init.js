@@ -140,7 +140,7 @@ Check the [docs](https://ampelc.codeberg.page/clippy) to learn more. Get help on
 To contribute, you need to install Clippy. To do this, see https://ampelc.codeberg.page/clippy/tutorial/`
   fs.writeFileSync(path.join(process.cwd(), 'README.md'), readmetext)
 
-  // make placeholder runtime.js file
+  // make placeholder runtime file
   const runtimejs = `export default {
   // This is where you add pre and post functions.
   // Simple extensions may not need pre and post, but for more complex extensions,
@@ -159,4 +159,3 @@ To contribute, you need to install Clippy. To do this, see https://ampelc.codebe
   console.log(`- Config file: ${configFile}`)
   console.log(`- Sample block: ${blocksDir}/hello.${language}`)
 }
-;``
