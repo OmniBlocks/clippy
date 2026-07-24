@@ -45,7 +45,7 @@ Note that Clippy is currently unsuitable for publishing your extension to TurboW
 
 ### Todo
 
-- [ ] TypeScript support
+- [x] TypeScript support
 - [ ] Better eslint integration. Our current one is simply using eslint as a wrapper instead of
       actually letting people run eslint themselves
 - [ ] Hot reloading
