@@ -5,11 +5,11 @@
 Clippy is a tool for building TurboWarp extensions.
 
 Clippy is very easy to use. All you have to do is run `clippy init`, and you're ready to start
-coding your blocks in JavaScript!
+coding your blocks in JavaScript or TypeScript!
 
-If you are more experienced with TurboWarp extensions, you can use `src/runtime.js` to add custom
-code that runs before and after registering your extension, this lets you add event handlers to the
-Scratch VM.
+If you are more experienced with TurboWarp extensions, you can use `src/runtime.js` /
+`src/runtime.ts` to add custom code that runs before and after registering your extension, this lets
+you add event handlers to the Scratch VM.
 
 For more info, visit: https://omniblocks.github.io/clippy
 
@@ -39,13 +39,13 @@ Clippy has 2 modes:
 
 We do not consider Clippy to be an assistive tool in the way things such as TurboBuilder or ExtForge
 are. Clippy is merely an abstraction for manually writing extensions. It is not a programming
-language; extensions are still written in JavaScript.
+language; extensions are still written in JavaScript (or TypeScript, but that's still ECMAScript).
 
 Note that Clippy is currently unsuitable for publishing your extension to TurboWarp.
 
 ### Todo
 
-- [ ] TypeScript support
+- [x] TypeScript support
 - [ ] Better eslint integration. Our current one is simply using eslint as a wrapper instead of
       actually letting people run eslint themselves
 - [ ] Hot reloading

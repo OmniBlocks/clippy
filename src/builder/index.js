@@ -36,7 +36,7 @@ export const build = async ({
 
     // Resolve block and menu files
     const resolveFiles = (dir) =>
-      fg('*.js', {
+      fg('*.{js,ts}', {
         cwd: path.join(projectPath, dir),
         absolute: true,
       })

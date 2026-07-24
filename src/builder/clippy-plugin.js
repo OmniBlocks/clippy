@@ -67,8 +67,15 @@ export const clippyPlugin = (config, blockFiles, menuFiles, hiddenBlocks, develo
 
     // runtime
     if (subPath === 'runtime') {
-      const filePath = path.resolve(process.cwd(), `./src/runtime.js`)
-      return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : `export default {};`
+      const runtimePath = ['js', 'ts']
+        .map((ext) => path.resolve(process.cwd(), `src/runtime.${ext}`))
+        .find(fs.existsSync)
+
+      if (!runtimePath) {
+        return `export default {};`
+      }
+
+      return fs.readFileSync(runtimePath, 'utf8')
     }
 
     return null

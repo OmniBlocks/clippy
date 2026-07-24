@@ -12,12 +12,15 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
     parseScratch()
 
     const filesToLint = await fg(
-      [path.join(projectPath, 'src/blocks/*.js'), path.join(projectPath, 'src/menus/*.js')],
+      [
+        path.join(projectPath, 'src/blocks/*.{js,ts}'),
+        path.join(projectPath, 'src/menus/*.{js,ts}'),
+      ],
       { absolute: true },
     )
 
     if (filesToLint.length === 0 && !develop) {
-      consola.error('No JavaScript files found to lint.')
+      consola.error('No JavaScript or TypeScript files found to lint.')
       process.exit(1)
     }
 
