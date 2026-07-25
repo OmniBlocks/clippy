@@ -3,19 +3,29 @@
  * Handles: Reconnecting WebSocket, Linting Overlay, and Message Bridge
  */
 
-let ws
 let lintOverlay = null
 
 /**
+ * Every reload re-evaluates this whole module from scratch.
+ */
+function getHotState() {
+  return (globalThis.__clippyHot ??= { ws: null, extensions: new Map() })
+}
+
+/**
  * Main Development Entry Point
+ * Called again on every hot reload, but only sets up the socket and message bridge once.
  */
 export function dev() {
+  const hot = getHotState()
+  if (hot.ws) return
+
   // 1. Setup WebSocket for HMR and Notifications
-  ws = createReconnectingWebSocket('ws://localhost:8000')
+  hot.ws = createReconnectingWebSocket('ws://localhost:8000')
 
   // 2. Setup Message Bridge for Iframe Communication
   window.addEventListener('message', (event) => {
-    if (!event.origin === 'http://localhost:8000') return
+    if (event.origin !== 'http://localhost:8000') return
     switch (event.data.type) {
       case 'close_lint_modal':
         if (lintOverlay) {
@@ -30,17 +40,34 @@ export function dev() {
   })
 
   // 3. Handle incoming server signals
-  ws.addEventListener('message', (e) => {
+  hot.ws.addEventListener('message', (e) => {
     const data = JSON.parse(e.data)
     switch (data.type) {
       case 'extension_update':
-        location.reload()
+        loadUpdatedExtension()
         break
       case 'show_toast':
         showToast(data.message)
         break
     }
   })
+}
+
+/**
+ * Registers the extension with the VM the first time it's seen.
+ */
+export function publish(id, extension, Scratch) {
+  const hot = getHotState()
+  const live = hot.extensions.get(id)
+
+  if (!live) {
+    Scratch.extensions.register(extension)
+    hot.extensions.set(id, extension)
+    return
+  }
+
+  Object.setPrototypeOf(live, Object.getPrototypeOf(extension))
+  Scratch.vm.extensionManager.refreshBlocks?.(id)?.catch?.(() => {})
 }
 
 /**
@@ -78,6 +105,7 @@ export function showLintingModal() {
  * Open file in editor helper
  */
 export const openInEditor = (file, line = 1, column = 1) => {
+  const { ws } = getHotState()
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: 'open_editor', file, line, column }))
   }
@@ -110,6 +138,23 @@ function showToast(msg) {
   }
   document.body.appendChild(el)
   setTimeout(() => el?.remove(), 6000)
+}
+
+/**
+ * Fetches the rebuilt extension bundle via a plain <script> tag, cache-busted with the
+ * current time so the browser can't serve a stale copy of clippy.js.
+ */
+function loadUpdatedExtension() {
+  const script = document.createElement('script')
+
+  script.src = `http://localhost:8000/clippy.js?v=${Date.now()}`
+  script.onload = () => script.remove()
+  script.onerror = () => {
+    script.remove()
+    console.error('Could not load the rebuilt extension; keeping the current one.')
+  }
+
+  document.head.append(script)
 }
 
 /**

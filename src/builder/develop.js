@@ -127,25 +127,28 @@ export async function startDevServer({
 
     if (req.method === 'OPTIONS') return res.writeHead(204, headers).end()
 
-    if (req.url === '/clippy.js') {
+    const { pathname } = new URL(req.url, `http://${req.headers.host}`)
+
+    if (pathname === '/clippy.js') {
       res.writeHead(200, {
         ...headers,
         'Content-Type': 'application/javascript',
+        'Cache-Control': 'no-store',
       })
       return res.end(latestJS)
     }
 
-    if (req.url === '/lint-results') {
+    if (pathname === '/lint-results') {
       res.writeHead(200, { ...headers, 'Content-Type': 'application/json' })
       return res.end(typeof lintResults === 'string' ? lintResults : JSON.stringify(lintResults))
     }
 
-    if (req.url === '/lintembed.html') {
+    if (pathname === '/lintembed.html') {
       res.writeHead(200, { ...headers, 'Content-Type': 'text/html' })
       return res.end(lintview)
     }
 
-    if (req.url === '/' || req.url === '/index.html') {
+    if (pathname === '/' || pathname === '/index.html') {
       res.writeHead(302, { Location: currentMod.url(port) })
       return res.end()
     }
