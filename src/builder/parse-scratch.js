@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 import JSON5 from 'json5'
 import { scratchSchema } from './scratch-schema.js'
 import { logZodError } from './format-zod-error.js'
