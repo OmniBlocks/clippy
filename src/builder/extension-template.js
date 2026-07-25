@@ -117,4 +117,9 @@ $$runtime.post(Scratch)
 /* @__PURE__ */
 const extension = new Extension()
 if (config.expose) Scratch.vm.$$runtime[`ext_${config.id}`] = extension
-Scratch.extensions.register(extension)
+
+if (isDevelop) {
+  import('$/clippybuilder/devtools.js').then(({ publish }) => publish(config.id, extension, Scratch))
+} else {
+  Scratch.extensions.register(extension)
+}
