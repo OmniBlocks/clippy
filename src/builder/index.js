@@ -2,6 +2,7 @@ import { rolldown } from 'rolldown'
 import { findProjectPath, parseScratch } from './parse-scratch.js'
 import { logZodError } from './format-zod-error.js'
 import path from 'node:path'
+import fs from 'node:fs'
 import fg from 'fast-glob'
 import { clippyPlugin } from './clippy-plugin.js'
 
@@ -51,12 +52,18 @@ export const build = async ({
       consola.warn('No blocks found in src/blocks!')
     }
 
+    // Resolve icon
+    const iconPath = path.join(projectPath, 'src', 'icon.svg')
+    const iconDataURI = fs.existsSync(iconPath)
+      ? `data:image/svg+xml,${encodeURIComponent(fs.readFileSync(iconPath, 'utf8'))}`
+      : null
+
     // 1. Input Options
     const inputOptions = {
       input: '$/clippybuilder/extension-template.js',
       platform: 'browser',
       // 'define' performs global text replacement
-      plugins: [clippyPlugin(config, blockFiles, menuFiles, hiddenBlocks, develop, mod)],
+      plugins: [clippyPlugin(config, blockFiles, menuFiles, hiddenBlocks, develop, mod, iconDataURI)],
       // Standard Rolldown/Rollup behavior
       treeshake: !develop,
       ...rolldownOptions,

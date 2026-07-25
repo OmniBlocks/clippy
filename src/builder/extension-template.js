@@ -6,6 +6,7 @@ import $$blockDefinitions from '$/blocks'
 import $$hiddenBlocks from '$/blocks/hidden'
 import $$menuDefinitions from '$/menus'
 import $$runtime from '$/runtime'
+import $$icon from '$/icon'
 
 if (!Scratch.extensions.unsandboxed && !config.sandboxAllowed) {
   throw new Error(`${config.name} must run unsandboxed`)
@@ -64,6 +65,7 @@ class Extension {
     return {
       id: config.id,
       name: isDevelop ? `${config.name} Dev` : config.name,
+      blockIconURI: $$icon ?? undefined,
       docsURI: config?.docsURI ?? undefined,
       color1: config?.colors?.[0] ?? undefined,
       color2: config?.colors?.[1] ?? undefined,

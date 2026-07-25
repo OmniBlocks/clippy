@@ -4,7 +4,15 @@ import fs from 'node:fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export const clippyPlugin = (config, blockFiles, menuFiles, hiddenBlocks, develop, target) => ({
+export const clippyPlugin = (
+  config,
+  blockFiles,
+  menuFiles,
+  hiddenBlocks,
+  develop,
+  target,
+  iconDataURI,
+) => ({
   name: 'clippy-plugin',
 
   resolveId(id, importer) {
@@ -32,6 +40,11 @@ export const clippyPlugin = (config, blockFiles, menuFiles, hiddenBlocks, develo
         export const isDevelop = ${Boolean(develop)};
         export const target = ${JSON.stringify(target)};
       `
+    }
+
+    // --- ICON ---
+    if (subPath === 'icon') {
+      return `export default ${JSON.stringify(iconDataURI)};`
     }
 
     // --- REGISTRIES ---
