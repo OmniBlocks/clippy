@@ -63,7 +63,18 @@ export const build = async ({
       input: '$/clippybuilder/extension-template.js',
       platform: 'browser',
       // 'define' performs global text replacement
-      plugins: [clippyPlugin(config, blockFiles, menuFiles, hiddenBlocks, develop, mod, iconDataURI)],
+      plugins: [
+        clippyPlugin(
+          config,
+          blockFiles,
+          menuFiles,
+          hiddenBlocks,
+          develop,
+          mod,
+          iconDataURI,
+          projectPath,
+        ),
+      ],
       // Standard Rolldown/Rollup behavior
       treeshake: !develop,
       ...rolldownOptions,

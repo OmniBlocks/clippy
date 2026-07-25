@@ -12,6 +12,7 @@ export const clippyPlugin = (
   develop,
   target,
   iconDataURI,
+  projectPath,
 ) => ({
   name: 'clippy-plugin',
 
@@ -81,7 +82,7 @@ export const clippyPlugin = (
     // runtime
     if (subPath === 'runtime') {
       const runtimePath = ['js', 'ts']
-        .map((ext) => path.resolve(process.cwd(), `src/runtime.${ext}`))
+        .map((ext) => path.resolve(projectPath, `src/runtime.${ext}`))
         .find(fs.existsSync)
 
       if (!runtimePath) {
