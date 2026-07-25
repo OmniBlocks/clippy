@@ -128,6 +128,8 @@ export async function init() {
     JSON.stringify(config, null, 2),
   )
 
+  cp(new URL('./builder/icon.svg', import.meta.url), path.join(srcDir, 'icon.svg'))
+
   // copy types
   await cp(new URL('./types', import.meta.url), typesDir, { recursive: true })
 
