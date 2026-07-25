@@ -64,7 +64,16 @@ export const build = async ({
       platform: 'browser',
       // 'define' performs global text replacement
       plugins: [
-        clippyPlugin(config, blockFiles, menuFiles, hiddenBlocks, develop, mod, iconDataURI, projectPath),
+        clippyPlugin(
+          config,
+          blockFiles,
+          menuFiles,
+          hiddenBlocks,
+          develop,
+          mod,
+          iconDataURI,
+          projectPath,
+        ),
       ],
       // Standard Rolldown/Rollup behavior
       treeshake: !develop,
