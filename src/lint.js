@@ -1,7 +1,6 @@
 import { findProjectPath, parseScratch } from './builder/parse-scratch.js'
 import path from 'node:path'
 import fg from 'fast-glob'
-import { ESLint } from 'eslint'
 import { createConsola } from 'consola'
 
 export async function lintExtensionFiles({ develop = false, verbose = false, fix = false } = {}) {
@@ -9,8 +8,11 @@ export async function lintExtensionFiles({ develop = false, verbose = false, fix
 
   try {
     ;({ ESLint } = await import('eslint'))
-  } catch {
-    return 'ESLint not installed.'
+  } catch (err) {
+    if (err?.code === 'ERR_MODULE_NOT_FOUND') {
+      return 'ESLint not installed.'
+    }
+    throw err
   }
 
   const consola = createConsola({ level: verbose ? 999 : 3 })
