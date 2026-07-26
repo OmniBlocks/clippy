@@ -27,7 +27,7 @@
     "inquirer": "^14.0.2",
     "js-yaml": "^5.2.2",
     "json5": "^2.2.3",
-    "launch-editor": "^2.13.2",
+    "launch-editor": "^2.14.1",
     "reconnecting-websocket": "^4.4.0",
     "rolldown": "1.2.0",
     "ws": "^8.21.1",
