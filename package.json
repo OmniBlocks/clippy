@@ -36,6 +36,11 @@
   "peerDependencies": {
     "eslint": ">=9"
   },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/yargs": "^17.0.35",
     "prettier": "^3.9.6"
