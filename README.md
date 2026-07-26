@@ -28,9 +28,9 @@ We won't get much into that, but there is
 
 Clippy has 2 modes:
 
-- Dev mode: This mode gives you a dev server that hot-reloads your extension's blocks and menus
-  in place when you make changes, without reloading the page. It also adds some dev extras. This
-  is not intended for distributing your extension to galleries.
+- Dev mode: This mode gives you a dev server that hot-reloads your extension's blocks and menus in
+  place when you make changes, without reloading the page. It also adds some dev extras. This is not
+  intended for distributing your extension to galleries.
 - Build mode: This
 
 ## FAQ
@@ -46,7 +46,7 @@ Note that Clippy is currently unsuitable for publishing your extension to TurboW
 ### Todo
 
 - [x] TypeScript support
-- [ ] Better eslint integration. Our current one is simply using eslint as a wrapper instead of
+- [x] Better eslint integration. Our current one is simply using eslint as a wrapper instead of
       actually letting people run eslint themselves
 - [x] Hot reloading
 - [x] Replace esbuild with Rolldown.
