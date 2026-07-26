@@ -5,6 +5,14 @@ import { ESLint } from 'eslint'
 import { createConsola } from 'consola'
 
 export async function lintExtensionFiles({ develop = false, verbose = false, fix = false } = {}) {
+  let ESLint
+
+  try {
+    ;({ ESLint } = await import('eslint'))
+  } catch {
+    return 'ESLint not installed.'
+  }
+
   const consola = createConsola({ level: verbose ? 999 : 3 })
 
   try {
