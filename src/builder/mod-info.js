@@ -12,4 +12,10 @@ export const mods = {
     url: (p) =>
       `https://studio.penguinmod.com/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
+  ob: {
+    name: 'OmniBlocks',
+    url: (p) =>
+      `https://omniblocks.github.io/editor.html?extension=http://localhost:${p}/clippy.js`,
+  },
+       
 }

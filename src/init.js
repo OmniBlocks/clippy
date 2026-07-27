@@ -137,9 +137,9 @@ export async function init() {
   const readmetext = `# Clippy
 A sample clippy extension.
 
-Check the [docs](https://ampelc.codeberg.page/clippy) to learn more. Get help on our [discussions page](https://github.com/OmniBlocks/clippy/discussions).
+Check the [docs](https://omniblocks.github.io/clippy/) to learn more. Get help on our [discussions page](https://github.com/orgs/OmniBlocks/discussions).
 
-To contribute, you need to install Clippy. To do this, see https://ampelc.codeberg.page/clippy/tutorial/`
+To contribute, you need to install Clippy. To do this, see https://omniblocks.github.io/clippy/tutorial/`
   fs.writeFileSync(path.join(process.cwd(), 'README.md'), readmetext)
 
   // make placeholder runtime file
