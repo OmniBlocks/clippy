@@ -1,7 +1,7 @@
 {
   "name": "@omniblocks/clippy",
   "version": "0.1.0",
-  "description": "",
+  "description": "Clippy is a tool for building TurboWarp extensions.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -10,8 +10,8 @@
   "bin": {
     "clippy": "./src/index.js"
   },
-  "keywords": [],
-  "author": "8to16",
+  "keywords": ["TurboWarp", "OmniBlocks", "AmpMod"],
+  "author": "OmniBlocks",
   "license": "MPL-2.0",
   "packageManager": "pnpm@11.16.0",
   "engines": {
