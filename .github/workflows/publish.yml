@@ -1,0 +1,33 @@
+name: Publish Package to npm
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+      - run: >
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="${{ github.event.release.tag_name }}"
+          TAG="${TAG#v}"
+
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "package.json version ($VERSION) does not match release tag ($TAG)"
+            exit 1
+          fi
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
