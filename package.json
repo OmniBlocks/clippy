@@ -10,12 +10,16 @@
   "bin": {
     "clippy": "./src/index.js"
   },
-   "files": [
+  "files": [
     "src",
     "README.md",
     "LICENSE"
   ],
-  "keywords": ["TurboWarp", "OmniBlocks", "AmpMod"],
+  "keywords": [
+    "TurboWarp",
+    "OmniBlocks",
+    "AmpMod"
+  ],
   "author": "OmniBlocks",
   "license": "MPL-2.0",
   "packageManager": "pnpm@11.16.0",

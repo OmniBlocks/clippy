@@ -17,5 +17,4 @@ export const mods = {
     url: (p) =>
       `https://omniblocks.github.io/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
-       
 }
