@@ -31,29 +31,27 @@ Clippy has 2 modes:
 - Dev mode: This mode gives you a dev server that hot-reloads your extension's blocks and menus in
   place when you make changes, without reloading the page. It also adds some dev extras. This is not
   intended for distributing your extension to galleries.
-- Build mode: This
+- Build mode: This mode creates a JavaScript file that you can share on extension galleries or add
+  to your project.
 
 ## FAQ
 
 ### Is Clippy an "assistive" tool?
 
 We do not consider Clippy to be an assistive tool in the way things such as TurboBuilder or ExtForge
-are. Clippy is merely an abstraction for manually writing extensions. It is not a programming
-language; extensions are still written in JavaScript (or TypeScript, but that's still ECMAScript).
+are (and definitely not something like Cursor or Copilot.)
 
-Note that Clippy is currently unsuitable for publishing your extension to TurboWarp.
+Clippy is merely an abstraction for manually writing extensions. It is not a programming
+language; extensions are still written in JavaScript or a language that compiles to it.
 
-### Todo
+### Can I use Clippy on extension galleries?
 
-- [x] TypeScript support
-- [x] Better eslint integration. Our current one is simply using eslint as a wrapper instead of
-      actually letting people run eslint themselves
-- [x] Hot reloading
-- [x] Replace esbuild with Rolldown.
+Clippy is currently unsuitable for publishing your extension to TurboWarp due to their strict
+guidelines that prohibit the code style Clippy outputs.
+
+The galleries for AmpMod, OmniBlocks and many others are generally more lenient when it comes to
+Clippy, but it's best to contact the maintainers about it.
 
 ## License
 
-MPL-2.0.
-
-Note: Clippy does not claim copyright over either its input or a resulting JavaScript file generated
-by it.
+Clippy is licenced under the Mozilla Public Licence version 2.0.
