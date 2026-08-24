@@ -17,4 +17,9 @@ export const mods = {
     url: (p) =>
       `https://omniblocks.github.io/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
+  ab: {
+    name: 'AstroBlocks',
+    url: (p) =>
+      `https://astroblocks.hermits.cc/editor.html?extension=http://localhost:${p}/clippy.js`,
+  },
 }
