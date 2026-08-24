@@ -1,6 +1,6 @@
 {
   "name": "@omniblocks/clippy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Clippy is a tool for building TurboWarp extensions.",
   "main": "src/index.js",
   "type": "module",
