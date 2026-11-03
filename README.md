@@ -54,4 +54,4 @@ Clippy, but it's best to contact the maintainers about it.
 
 ## License
 
-Clippy is licenced licensede Affero General Public License Version 3.
+Clippy is licensed under the GNU Affero General Public License Version 3.
