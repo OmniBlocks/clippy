@@ -4,7 +4,7 @@
 
 Clippy is a tool for building TurboWarp extensions.
 
-Clippy is very easy to use. All you have to do is run `clippy init`, and you're ready to start
+Clippy is very easy to use. All you have to do is run install with `pnpm add -g @omniblocks/clippy`, run `clippy init`, and you're ready to start
 coding your blocks in JavaScript or TypeScript!
 
 If you are more experienced with TurboWarp extensions, you can use `src/runtime.js` /
@@ -54,4 +54,4 @@ Clippy, but it's best to contact the maintainers about it.
 
 ## License
 
-Clippy is licenced under the Mozilla Public Licence version 2.0.
+Clippy is licenced licensede Affero General Public License Version 3.
