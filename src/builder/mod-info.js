@@ -32,4 +32,9 @@ export const mods = {
     url: (p) =>
       `https://nitrobolt.org/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
+  lk: {
+    name: 'LibreKitten',
+    url: (p) =>
+      `https://librekitten.org/editor.html?extension=http://localhost:${p}/clippy.js`,
+  },
 }
