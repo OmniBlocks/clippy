@@ -12,6 +12,11 @@ export const mods = {
     url: (p) =>
       `https://studio.penguinmod.com/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
+  pm_port: {
+    name: 'PenguinMod Port',
+    url: (p) =>
+      `https://dev-studio.penguinmod.com/editor.html?extension=http://localhost:${p}/clippy.js`,
+  },
   ob: {
     name: 'OmniBlocks',
     url: (p) =>
