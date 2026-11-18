@@ -12,14 +12,29 @@ export const mods = {
     url: (p) =>
       `https://studio.penguinmod.com/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
+  pm_port: {
+    name: 'PenguinMod Port',
+    url: (p) =>
+      `https://dev-studio.penguinmod.com/editor.html?extension=http://localhost:${p}/clippy.js`,
+  },
   ob: {
     name: 'OmniBlocks',
     url: (p) =>
       `https://omniblocks.github.io/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
-  ab: {
-    name: 'AstroBlocks',
+  mw: {
+    name: 'MistWarp',
     url: (p) =>
-      `https://astroblocks.hermits.cc/editor.html?extension=http://localhost:${p}/clippy.js`,
+      `https://editor.mistwarp.org/?extension=http://localhost:${p}/clippy.js`,
+  },
+  nb: {
+    name: 'NitroBolt',
+    url: (p) =>
+      `https://nitrobolt.org/editor.html?extension=http://localhost:${p}/clippy.js`,
+  },
+  lk: {
+    name: 'LibreKitten',
+    url: (p) =>
+      `https://librekitten.org/editor.html?extension=http://localhost:${p}/clippy.js`,
   },
 }
